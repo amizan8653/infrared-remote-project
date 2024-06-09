@@ -1,0 +1,139 @@
+
+# Please take the time to finish this file as described in
+# https://sourceforge.net/p/lirc-remotes/wiki/Checklist/
+# and make it available to others by sending it to
+# <lirc@bartelmus.de>
+#
+# This config file was automatically generated
+# using lirc-0.10.1(default) on Sun Jun  9 18:06:07 2024
+# Command line used: -d /dev/lirc1 /home/amizan8653/lircd.conf
+# Kernel version (uname -r): 6.6.31+rpt-rpi-2712
+#
+# Remote name (as of config file): rybozen
+# Brand of remote device, the thing you hold in your hand:
+# Remote device model nr:
+# Remote device info url:
+# Does remote device has a bundled capture device e. g., a
+#     usb dongle? :
+# For bundled USB devices: usb vendor id, product id
+#     and device string (use dmesg or lsusb):
+# Type of device controlled
+#     (TV, VCR, Audio, DVD, Satellite, Cable, HTPC, ...) :
+# Device(s) controlled by this remote:
+
+
+
+# --------------------------------------------------------------------------
+# Rybozen USB 4 x 4 hub
+# 
+# KEY_MACRO1=RYBOZEN_USB_1
+# KEY_MACRO2=RYBOZEN_USB_2
+# KEY_MACRO3=RYBOZEN_USB_3
+# KEY_MACRO4=RYBOZEN_USB_4
+# 
+begin remote
+
+  name  rybozen
+  bits           32
+  flags SPACE_ENC|CONST_LENGTH
+  eps            30
+  aeps          100
+
+  header       9305  4498
+  one           614  1643
+  zero          614   532
+  ptrail        614
+  repeat       9311  2223
+  gap          108562
+  toggle_bit_mask 0x0
+  frequency    38000
+
+      begin codes
+          KEY_MACRO1               0x00FFE01F 0xFFFFFFFF
+          KEY_MACRO2               0x00FF02FD 0xFFFFFFFF
+          KEY_MACRO3               0x00FF906F 0xFFFFFFFF
+          KEY_MACRO4               0x00FF9867 0xFFFFFFFF
+      end codes
+
+end remote
+
+
+
+# --------------------------------------------------------------------------
+# HDMI 4 x 2 matrix
+# 
+# KEY_MACRO1=MATRIX_OUT1_IN_1
+# KEY_MACRO2=MATRIX_OUT1_IN_2
+# KEY_MACRO3=MATRIX_OUT1_IN_3
+# KEY_MACRO4=MATRIX_OUT1_IN_4
+# KEY_MACRO5=MATRIX_OUT2_IN_1
+# KEY_MACRO6=MATRIX_OUT2_IN_2
+# KEY_MACRO7=MATRIX_OUT2_IN_3
+# KEY_MACRO8=MATRIX_OUT2_IN_4
+# 
+begin remote
+
+  name  matrix
+  bits           32
+  flags SPACE_ENC|CONST_LENGTH
+  eps            30
+  aeps          100
+
+  header       8975  4424
+  one           603  1637
+  zero          603   515
+  ptrail        601
+  repeat       8945  2209
+  gap          107390
+  toggle_bit_mask 0x0
+  frequency    38000
+
+      begin codes
+          KEY_MACRO1               0x01FEA05F 0xFFFFFFFF
+          KEY_MACRO2               0x01FE609F 0xFFFFFFFF
+          KEY_MACRO3               0x01FE906F 0xFFFFFFFF
+          KEY_MACRO4               0x01FE50AF 0xFFFFFFFF
+          KEY_MACRO5               0x01FEA45B 0xFFFFFFFF
+          KEY_MACRO6               0x01FE649B 0xFFFFFFFF
+          KEY_MACRO7               0x01FEE41B 0xFFFFFFFF
+          KEY_MACRO8               0x01FE14EB 0xFFFFFFFF
+      end codes
+
+end remote
+
+
+
+# --------------------------------------------------------------------------
+# sgeyr_3x1_hdmi_switch
+# KEY_MACRO1=SGEYR_ON_OFF
+# KEY_MACRO2=SGEYR_1
+# KEY_MACRO3=SGEYR_2
+# KEY_MACRO4=SGEYR_3
+# KEY_MACRO5=SGEYR_4
+# 
+begin remote
+
+  name  sgeyr_3x1_hdmi_switch
+  bits           32
+  flags SPACE_ENC|CONST_LENGTH
+  eps            30
+  aeps          100
+
+  header       9060  4477
+  one           607  1646
+  zero          607   522
+  ptrail        607
+  repeat       9062  2221
+  gap          108498
+  toggle_bit_mask 0x0
+  frequency    38000
+
+      begin codes
+          KEY_MACRO1               0x01FE30CF 0xFFFFFFFF
+          KEY_MACRO2               0x01FE807F 0xFFFFFFFF
+          KEY_MACRO3               0x01FEC03F 0xFFFFFFFF
+          KEY_MACRO4               0x01FEB04F 0xFFFFFFFF
+          KEY_MACRO5               0x01FE708F 0xFFFFFFFF
+      end codes
+
+end remote

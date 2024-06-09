@@ -1,0 +1,2 @@
+https://raspberrypi.stackexchange.com/a/84378
+go and turn  numlock on when powering on^
