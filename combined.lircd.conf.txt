@@ -137,3 +137,48 @@ begin remote
       end codes
 
 end remote
+
+
+# --------------------------------------------------------------------------
+# 8k_4x1_HDMI_SWITCH
+# KEY_MACRO1=OFF
+# KEY_MACRO2=ON
+# KEY_MACRO3=1
+# KEY_MACRO4=2
+# KEY_MACRO5=3
+# KEY_MACRO6=4
+# KEY_MACRO7=AUTO
+# KEY_MACRO8=UP
+# KEY_MACRO9=DOWN
+
+begin remote
+
+  name  8K_4X1_HDMI_SWITCH
+  bits           32
+  flags SPACE_ENC|CONST_LENGTH
+  eps            30
+  aeps          100
+
+  header       9044  4441
+  one           614  1624
+  zero          614   504
+  ptrail        612
+  repeat       9044  2190
+  gap          107829
+  toggle_bit_mask 0x0
+  frequency    38000
+
+      begin codes
+          KEY_MACRO1               0x807FF807 0x00000000
+          KEY_MACRO2               0x807F3AC5 0x00000000
+          KEY_MACRO3               0x807FD827 0x00000000
+          KEY_MACRO4               0x807F7887 0x00000000
+          KEY_MACRO5               0x807F48B7 0x00000000
+          KEY_MACRO6               0x807F08F7 0x00000000
+          KEY_MACRO7               0x807FB04F 0x00000000
+          KEY_MACRO8               0x807F30CF 0x00000000
+          KEY_MACRO9               0x807FA05F 0x00000000
+      end codes
+
+end remote
+
