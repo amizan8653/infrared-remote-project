@@ -75,20 +75,28 @@ while mainloop:
                 subprocess.run("irsend SEND_ONCE matrix KEY_MACRO8", shell=True)
                 
 
-            # sgeyr 3x1 hdmi switch
+            # 8k_4x1_HDMI_SWITCH 
             elif pygame.key.name(event.key) == "[1]":
                 # display 2 - gaming pc
                 print('7 pressed')
-                subprocess.run("irsend SEND_ONCE sgeyr_3x1_hdmi_switch KEY_MACRO2", shell=True)
+                subprocess.run("irsend SEND_ONCE 8K_4X1_HDMI_SWITCH KEY_MACRO3", shell=True)
             elif pygame.key.name(event.key) == "[2]":
                 # display 2 - mac
                 print('8 pressed')
-                subprocess.run("irsend SEND_ONCE sgeyr_3x1_hdmi_switch KEY_MACRO3", shell=True)
+                subprocess.run("irsend SEND_ONCE 8K_4X1_HDMI_SWITCH KEY_MACRO4", shell=True)
             elif pygame.key.name(event.key) == "[3]":
                 # display 2 - gfe
                 print('9 pressed')
-                subprocess.run("irsend SEND_ONCE sgeyr_3x1_hdmi_switch KEY_MACRO4", shell=True)
-        
+                subprocess.run("irsend SEND_ONCE 8K_4X1_HDMI_SWITCH KEY_MACRO5", shell=True)
+            elif pygame.key.name(event.key) == "[.]":
+                # display 2 - auto switch
+                print('. pressed')
+                subprocess.run("irsend SEND_ONCE 8K_4X1_HDMI_SWITCH KEY_MACRO7", shell=True)
+                
+            # wiz light
+            elif pygame.key.name(event.key) == "[-]":
+                # nightlight
+                print('- pressed')        
             elif pygame.key.name(event.key) == "[+]":
                 # warm light
                 print('+ pressed')
@@ -98,14 +106,6 @@ while mainloop:
             elif pygame.key.name(event.key) == "[0]":
                 # off
                 print('0 pressed')
-            elif pygame.key.name(event.key) == "[.]":
-                # night light
-                print('. pressed')
                 
-            # not sure what to do with this
-            elif pygame.key.name(event.key) == "[-]":
-                # not sure what to do with this. before it was the sgeyr 3x1 switch's switch button
-                print('- pressed')
-                subprocess.run("irsend SEND_ONCE sgeyr_3x1_hdmi_switch KEY_MACRO5", shell=True)
                 
 pygame.quit()
