@@ -1,11 +1,10 @@
 # source: https://www.circuitbasics.com/how-to-detect-keyboard-and-mouse-inputs-on-a-raspberry-pi/
-# source ~/venv/bin/activate && cd ~/Desktop && python pyfile.py
 
 import pygame
 import subprocess
 
 pygame.init()
-window = pygame.display.set_mode((300, 300))
+window = pygame.display.set_mode((300, 300), pygame.HWSURFACE)
 pygame.display.set_caption("Pygame Demonstration")
 
 mainloop=True
@@ -105,6 +104,7 @@ while mainloop:
                 print('enter pressed')
             elif pygame.key.name(event.key) == "[0]":
                 # off
+                print(event)
                 print('0 pressed')
                 
                 
