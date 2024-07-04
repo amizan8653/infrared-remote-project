@@ -1,9 +1,21 @@
+# to install or update the service (taken from boot.pdf section 4.4.4): 
+
+# sudo cp ./remote-control.service /etc/systemd/system/remote-control.service
+# sudo systemctl daemon-reload
+# sudo systemctl enable remote-control
+# sudo systemctl start remote-control
+
+# or all in one: 
+# sudo cp ./remote-control.service /etc/systemd/system/remote-control.service && sudo systemctl daemon-reload && sudo systemctl enable remote-control && sudo systemctl start remote-control
+
+
+
 [Unit]
 Description=remote control software
 [Service]
 Type=simple
 ExecStart=/usr/bin/python3.11 /home/amizan8653/Desktop/git_repos/infrared-remote-project/RemoteControl.py
 Restart=always
-WorkingDirectory=~/Desktop/git_respos/infrared-remote-project
+WorkingDirectory=/home/amizan8653/Desktop/git_repos/infrared-remote-project
 [Install]
 WantedBy=multi-user.target
