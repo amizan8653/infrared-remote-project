@@ -18,7 +18,7 @@ while mainloop:
 
         if event.type == pygame.KEYDOWN:
 
-            # print(pygame.key.name(event.key))
+            print(pygame.key.name(event.key))
             
             # USB hub
             if pygame.key.name(event.key) == "backspace":
