@@ -1,0 +1,333 @@
+how to get keyboard inputs to be read on python: 
+https://www.circuitbasics.com/how-to-detect-keyboard-and-mouse-inputs-on-a-raspberry-pi/
+
+how to go and get services setup can be found in boot.pdf in section 4.4.4. It's all about serviced
+
+
+how to remap keyboard keys for certain device: 
+https://superuser.com/questions/760602/how-to-remap-keys-under-linux-for-a-specific-keyboard-only/1398289#1398289	
+
+from link above, the wayland specific way: 
+https://github.com/philipl/evdevremapkeys
+- make virtual env in evdevremapkeys dir: cd into that dir and run python -m venv ./venv
+- activate it: source ./venv/bin/activate
+- modify setup.cfg: 
+	- set version for pyinstaller to 6.8 instead of 4.2 (might be different in future, just get the latest which can be found here: https://pypi.org/project/pyinstaller/)
+- installs some necessary stuff: 
+	- # wheel and scons are requirements for staticx
+	- # patchelf is needed to run the build script
+	- # argparse and asyncio is imported in python script
+	- pip3 install wheel
+	- pip3 instal scons
+	- pip3 install patchelf
+	- pip3 instal staticx
+	- pip3 install argparse
+	- pip3 install asyncio
+- give execution rights to build script: chmod +x build-binary.sh
+- execute binary: ./build-binary.sh
+
+serviced how to setup service: 
+https://stackoverflow.com/a/62643730
+
+serviced further documentation: 
+https://www.freedesktop.org/software/systemd/man/latest/systemd.service.html
+
+----
+
+bluetoothctl
+// on startup you'll see controller: 
+Controller 2C:CF:67:15:3D:B4 raspberrypi
+
+// turn on bluetooth device to see something like this:
+[CHG] Device 2A:23:03:12:96:86
+
+// get info for this mac address: 
+[Macally Bluetooth BTNUMKEY Keypad]# info 2A:23:03:12:96:86
+Device 2A:23:03:12:96:86 (public)
+	Name: Macally Bluetooth BTNUMKEY Keypad
+	Alias: Macally Bluetooth BTNUMKEY Keypad
+	Class: 0x00000540
+	Icon: input-keyboard
+	Paired: yes
+	Bonded: yes
+	Trusted: yes
+	Blocked: no
+	Connected: yes
+	WakeAllowed: yes
+	LegacyPairing: no
+	UUID: Service Discovery Serve.. (00001000-0000-1000-8000-00805f9b34fb)
+	UUID: Human Interface Device... (00001124-0000-1000-8000-00805f9b34fb)
+	UUID: PnP Information           (00001200-0000-1000-8000-00805f9b34fb)
+	Modalias: usb:v2222p0064d011B
+
+I think Modalias usb shows vendor id, whatever p is, and device id
+so above the vendor id is 2222,and the  device id is 011B
+
+// exit bluetoothctl
+exit 
+
+// note: if you don't have bluetooth and you have a direct connection,
+//       then you can probably just use lsusb
+
+Note: I don't think the information from bluetoothctl was actually helpful. 
+you can do this: 
+
+evdevremapkeys -l
+
+and you end up getting: 
+input_fn:         	"input_phys" | "input_name"
+/dev/input/event5:	"2c:cf:67:15:3d:b4" | "Macally Bluetooth BTNUMKEY Keypad Keyboard"
+
+In terms of keyboard events, they are listed here: 
+https://github.com/torvalds/linux/blob/master/include/uapi/linux/input-event-codes.h
+
+to go and see what events that your device will throw for wayland (source: https://wiki.archlinux.org/title/Keyboard_input): 
+sudo apt-get install  wev
+wev | grep 'sym'
+// click the window and then start typing to view the keycodes. I got this: 
+
+(venv) amizan8653@raspberrypi:~/Desktop/git_reops/evdevremapkeys/bin $ wev | grep 'sym'
+                      sym: BackSpace    (65288), utf8: '
+                      sym: BackSpace    (65288), utf8: ''
+                      sym: equal        (61), utf8: '='
+                      sym: equal        (61), utf8: ''
+                      sym: KP_Divide    (65455), utf8: '/'
+                      sym: KP_Divide    (65455), utf8: ''
+                      sym: KP_Multiply  (65450), utf8: '*'
+                      sym: KP_Multiply  (65450), utf8: ''
+                      sym: KP_Home      (65429), utf8: ''
+                      sym: KP_Home      (65429), utf8: ''
+                      sym: KP_Up        (65431), utf8: ''
+                      sym: KP_Up        (65431), utf8: ''
+                      sym: KP_Prior     (65434), utf8: ''
+                      sym: KP_Prior     (65434), utf8: ''
+                      sym: KP_Subtract  (65453), utf8: '-'
+                      sym: KP_Subtract  (65453), utf8: ''
+                      sym: KP_Left      (65430), utf8: ''
+                      sym: KP_Left      (65430), utf8: ''
+                      sym: KP_Begin     (65437), utf8: ''
+                      sym: KP_Begin     (65437), utf8: ''
+                      sym: KP_Right     (65432), utf8: ''
+                      sym: KP_Right     (65432), utf8: ''
+                      sym: KP_Add       (65451), utf8: '+'
+                      sym: KP_Add       (65451), utf8: ''
+                      sym: KP_End       (65436), utf8: ''
+                      sym: KP_End       (65436), utf8: ''
+                      sym: KP_Down      (65433), utf8: ''
+                      sym: KP_Down      (65433), utf8: ''
+                      sym: KP_Next      (65435), utf8: ''
+                      sym: KP_Next      (65435), utf8: ''
+'                     sym: KP_Enter     (65421), utf8: '
+                      sym: KP_Enter     (65421), utf8: ''
+                      sym: KP_Insert    (65438), utf8: ''
+                      sym: KP_Insert    (65438), utf8: ''
+                      sym: KP_Delete    (65439), utf8: ''
+                      sym: KP_Delete    (65439), utf8: ''
+
+using https://keyboard-checker.com/, I saw that "kp_prior" is really page up, and "kp_next" is really page up. "kp_begin" is also called clear...which has a mapping
+
+based on this, I think that my config.yaml looks like this: 
+
+
+```config.yaml
+devices:
+- input_name: Macally Bluetooth BTNUMKEY Keypad Keyboard
+  input_phys: '2c:cf:67:15:3d:b4'
+  output_name: remap-numpad
+  remappings:
+    KEY_BACKSPACE:
+    - KEY_MACRO1
+    KEY_KPEQUAL:
+    - KEY_MACRO2
+    KEY_KPSLASH:
+    - KEY_MACRO3
+    KEY_KPASTERISK:
+    - KEY_MACRO4
+    KEY_HOME:
+    - KEY_MACRO5
+    KEY_UP:
+    - KEY_MACRO6
+    KEY_PAGEUP:
+    - KEY_MACRO7
+    KEY_KPMINUS:
+    - KEY_MACRO8
+    KEY_LEFT:
+    - KEY_MACRO9
+    KEY_CLEAR:
+    - KEY_MACRO10
+    KEY_RIGHT:
+    - KEY_MACRO11
+    KEY_KPPLUS:
+    - KEY_MACRO12
+    KEY_END:
+    - KEY_MACRO13
+    KEY_DOWN:
+    - KEY_MACRO14
+    KEY_PAGEDOWN:
+    - KEY_MACRO15
+    KEY_KPENTER:
+    - KEY_MACRO16
+    KEY_INSERT:
+    - KEY_MACRO17
+    KEY_DELETE:
+    - KEY_MACRO18
+```
+
+this is your service: 
+
+```evdevremapkeys.service
+[Unit]
+Conflicts=gnome-shell-x11.service
+
+[Service]
+WorkingDirectory=/tmp
+ExecStart=evdevremapkeys
+Restart=always
+PrivateTmp=true
+NoNewPrivileges=true
+
+[Install]
+WantedBy=gnome-shell-wayland.service
+```
+
+
+manually running the thing: evdevremapkeys --config-file ~/Desktop/git_reops/infrared-remote-project/config.yaml
+still fails
+
+another thing that I can try: 
+https://gitlab.com/Programie/KeyboardMapper
+- download the latest releaset adn extract it (Using 3.2)
+- python -m venv ./venv --system-site-packages
+- source venv/bin/activate
+- pip3 install -r requirements.txt
+	- if it fails, install one at time. seems like PyYAML==5.4.1 fails but... we can use version 6 from site-packages.
+- PyQT5 will only work if you take it from site packages with the --system-site-packages
+
+
+
+another thing that I can try: 
+kmonad: 
+install stack first with: 
+curl -sSL https://get.haskellstack.org/ | sh
+
+add /home/amizan8653/.local/bin to your path by opening up .bashrc and adding this at the end: 
+export PATH="/home/amizan8653/.local/bin:$PATH"
+clone repo with git clone https://github.com/kmonad/kmonad.git
+cd into it and run stack install
+
+
+another thing that I can try: 
+keyd:
+https://github.com/rvaiya/keyd
+
+instruction on repo are very thorough
+
+installation:
+git clone https://github.com/rvaiya/keyd
+cd keyd
+make && sudo make install
+sudo systemctl enable keyd && sudo systemctl start keyd
+
+finding out what keys are pressed
+keyd monitor
+>> gives you the following output: 
+device added: 2222:0064:c70558c2 Macally Bluetooth BTNUMKEY Keypad Keyboard (/dev/input/event5)
+Macally Bluetooth BTNUMKEY Keypad Keyboard	2222:0064:c70558c2	backspace down
+Macally Bluetooth BTNUMKEY Keypad Keyboard	2222:0064:c70558c2	backspace up
+Macally Bluetooth BTNUMKEY Keypad Keyboard	2222:0064:c70558c2	= down
+Macally Bluetooth BTNUMKEY Keypad Keyboard	2222:0064:c70558c2	= up
+Macally Bluetooth BTNUMKEY Keypad Keyboard	2222:0064:c70558c2	kpslash down
+Macally Bluetooth BTNUMKEY Keypad Keyboard	2222:0064:c70558c2	kpslash up
+Macally Bluetooth BTNUMKEY Keypad Keyboard	2222:0064:c70558c2	kpasterisk down
+Macally Bluetooth BTNUMKEY Keypad Keyboard	2222:0064:c70558c2	kpasterisk up
+Macally Bluetooth BTNUMKEY Keypad Keyboard	2222:0064:c70558c2	kp7 down
+Macally Bluetooth BTNUMKEY Keypad Keyboard	2222:0064:c70558c2	kp7 up
+Macally Bluetooth BTNUMKEY Keypad Keyboard	2222:0064:c70558c2	kp8 down
+Macally Bluetooth BTNUMKEY Keypad Keyboard	2222:0064:c70558c2	kp8 up
+Macally Bluetooth BTNUMKEY Keypad Keyboard	2222:0064:c70558c2	kp9 down
+Macally Bluetooth BTNUMKEY Keypad Keyboard	2222:0064:c70558c2	kp9 up
+Macally Bluetooth BTNUMKEY Keypad Keyboard	2222:0064:c70558c2	kpminus down
+Macally Bluetooth BTNUMKEY Keypad Keyboard	2222:0064:c70558c2	kpminus up
+Macally Bluetooth BTNUMKEY Keypad Keyboard	2222:0064:c70558c2	kp4 down
+Macally Bluetooth BTNUMKEY Keypad Keyboard	2222:0064:c70558c2	kp4 up
+Macally Bluetooth BTNUMKEY Keypad Keyboard	2222:0064:c70558c2	kp5 down
+Macally Bluetooth BTNUMKEY Keypad Keyboard	2222:0064:c70558c2	kp5 up
+Macally Bluetooth BTNUMKEY Keypad Keyboard	2222:0064:c70558c2	kp6 down
+Macally Bluetooth BTNUMKEY Keypad Keyboard	2222:0064:c70558c2	kp6 up
+Macally Bluetooth BTNUMKEY Keypad Keyboard	2222:0064:c70558c2	kpplus down
+Macally Bluetooth BTNUMKEY Keypad Keyboard	2222:0064:c70558c2	kpplus up
+Macally Bluetooth BTNUMKEY Keypad Keyboard	2222:0064:c70558c2	kp1 down
+Macally Bluetooth BTNUMKEY Keypad Keyboard	2222:0064:c70558c2	kp1 up
+Macally Bluetooth BTNUMKEY Keypad Keyboard	2222:0064:c70558c2	kp2 down
+Macally Bluetooth BTNUMKEY Keypad Keyboard	2222:0064:c70558c2	kp2 up
+Macally Bluetooth BTNUMKEY Keypad Keyboard	2222:0064:c70558c2	kp3 down
+Macally Bluetooth BTNUMKEY Keypad Keyboard	2222:0064:c70558c2	kp3 up
+Macally Bluetooth BTNUMKEY Keypad Keyboard	2222:0064:c70558c2	kpenter down
+Macally Bluetooth BTNUMKEY Keypad Keyboard	2222:0064:c70558c2	kpenter up
+Macally Bluetooth BTNUMKEY Keypad Keyboard	2222:0064:c70558c2	kp0 down
+Macally Bluetooth BTNUMKEY Keypad Keyboard	2222:0064:c70558c2	kp0 up
+Macally Bluetooth BTNUMKEY Keypad Keyboard	2222:0064:c70558c2	kpdot down
+Macally Bluetooth BTNUMKEY Keypad Keyboard	2222:0064:c70558c2	kpdot up
+
+you can also find all the stuff that you can choose to remap to 
+keyd list-keys
+i've selected these 18 keys: 
+f13
+f14
+f15
+f16
+f17
+f18
+f19
+f20
+f21
+f22
+f23
+f24
+scrolllock
+katakana
+hiragana
+henkan
+katakanahiragana
+muhenkan
+
+I think that I'll go and make this the config file for keyd:
+
+```/etc/keyd/default.conf
+# this is for keyd keyboard remapping service
+# cp file over with sudo cp ./keyd.conf /etc/keyd/default.conf
+# then reload with sudo keyd reload
+
+[ids]
+
+# this is the vendor id and product id of the specific keyboard I want keyd to be modifying
+# if you want global configurations, use *
+# id of keyboard found with `keyd monitor`: device added: 2222:0064:c70558c2 Macally Bluetooth BTNUMKEY Keypad Keyboard (/dev/input/event5)
+# more information found in documentation with man keyd
+
+2222:0064
+
+[main]
+
+backspace = f13
+= = f14
+kpslash = f15
+kpasterisk = f16
+kp7 = f17
+kp8 = f18
+kp9 = f19
+kpminus = f20
+kp4 = f21
+kp5 = f22
+kp6 = f23
+kpplus = f24
+kp1 = scrolllock
+kp2 = katakana
+kp3 = hiragana
+kpenter = henkan
+kp0 = katakanahiragana
+kpdot = muhenkan
+
+
+```
+
