@@ -1,0 +1,39 @@
+from:
+https://github.com/AnaviTechnology/anavi-docs/blob/main/anavi-infrared-phat/anavi-infrared-phat.md#infrared-and-lirc
+
+
+`sudo apt install -y lirc`
+
+add the following 2 lines to /boot/firmware/config.txt with `sudo nano /boot/firmware/config.txt`
+
+edit `/etc/lirc/lirc_options.conf` with `sudo nano /etc/lirc/lirc_options.conf` to have the following lines: 
+
+```
+driver          = default
+device          = auto
+```
+
+the above is different from what the github says: github says instead of putting auto, to use the transmitter or receiver. 
+but... at least after I've already defined the remote, auto works perfectly.
+maybe I would need to manually set it to the receiver if reading in a new remote.
+
+
+```
+dtoverlay=gpio-ir,gpio_pin=18
+dtoverlay=gpio-ir-tx,gpio_pin=17
+```
+
+reboot
+`sudo reboot`
+
+You've already done the work to setup the remotes data.
+
+back up the original: 
+`sudo mv /etc/lirc/lircd.conf /etc/lirc/lircd-backup.conf`
+
+copy over the one you configured:
+`sudo cp ./combined.lircd.conf.txt /etc/lirc/lircd.conf`
+
+
+kick off the service.
+`sudo systemctl restart lircd`

@@ -1,0 +1,4 @@
+follow the instructions that are in comments in keyd.conf
+
+note: you will have to cd one directory up so that you can clone down the repo.
+At the step where you are copying keyd.conf, navigate back here since this is the folder that contains it.
