@@ -3,10 +3,13 @@
 # sudo cp ./remote-control.service /etc/systemd/system/remote-control.service
 # sudo systemctl daemon-reload
 # sudo systemctl enable remote-control
-# sudo systemctl start remote-control
+# sudo systemctl restart remote-control
 
 # or all in one: 
-# sudo cp ./remote-control.service /etc/systemd/system/remote-control.service && sudo systemctl daemon-reload && sudo systemctl enable remote-control && sudo systemctl start remote-control
+# sudo cp ./remote-control.service /etc/systemd/system/remote-control.service && sudo systemctl daemon-reload && sudo systemctl enable remote-control && sudo systemctl restart remote-control
+
+# some debug info can be found with journalctl -xe -u remote-control.service
+# how to set env vars for systemd service: https://serverfault.com/a/413408
 
 
 
@@ -14,8 +17,11 @@
 Description=remote control software
 [Service]
 Type=simple
-ExecStart=/usr/bin/python3.11 /home/amizan8653/Desktop/git_repos/infrared-remote-project/RemoteControl.py
+ExecStart=/home/amizan8653/.venv/bin/python /home/amizan8653/Desktop/git_repos/infrared-remote-project/RemoteControl.py
 Restart=always
 WorkingDirectory=/home/amizan8653/Desktop/git_repos/infrared-remote-project
+Environment="XDG_RUNTIME_DIR=/run/user/1000"
+User=amizan8653
+Group=sudo
 [Install]
 WantedBy=multi-user.target

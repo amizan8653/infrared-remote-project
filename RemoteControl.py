@@ -8,6 +8,7 @@ from pywizlight import wizlight, PilotBuilder, discovery
 
 
 async def main(): 
+        print("entering main loop")
         
         # lightbulb initiailzation
         wiz_bulb_ip = "192.168.4.21"
@@ -60,7 +61,6 @@ async def main():
 
         mainloop=True
         while mainloop:
-
             for event in pygame.event.get():
 
                 if event.type == pygame.QUIT:
@@ -69,8 +69,9 @@ async def main():
 
                 if event.type == pygame.KEYDOWN:
 
-                    # print(pygame.key.name(event.key))
+                    print(pygame.key.name(event.key))
                     key_press = pygame.key.name(event.key).lower().replace(" ", "")
+
                     
                     # USB hub
                     if key_press == "f13":

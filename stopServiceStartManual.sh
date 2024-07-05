@@ -1,4 +1,4 @@
 #!/bin/bash
 
 sudo systemctl stop remote-control
-/usr/bin/python3.11 /home/amizan8653/Desktop/git_repos/infrared-remote-project/RemoteControl.py
+./RemoteControl.sh
