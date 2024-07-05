@@ -1,0 +1,26 @@
+for lirc and the infrared stuff, no additional python libraries are needed. 
+
+But then when we want to do stuff with wiz lights, we need pip install pywizlight for example.
+
+this requires a virutal env as raspberry pi doesn't  really let us fuck with the gobal python libraries as we'd probably break stuff.
+I mean we _could_ run a special command to let us install whatever and potentially break stuff.
+but I'd rather not.
+
+So, setup a virtual env in home directory which also has access to all the system wide stuff in it too with
+
+```
+python -m venv ~/.venv --system-site-packages
+```
+
+next, when .bashrc kicks off new terminal windows, you'll want to source the virtual env.
+Add thish to  your .bashrc at the very end:
+
+```
+source ~/.venv/bin/activate
+```
+
+close terminal and open up another one to verify that we are in the virtual env. then go and run this: 
+
+```
+pip install pywizlight
+```
