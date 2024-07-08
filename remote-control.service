@@ -15,6 +15,8 @@
 
 [Unit]
 Description=remote control software
+# for some reason, this remote control service messes up HDMI sound output unless you wait for it to load first.
+After=sound.target
 [Service]
 Type=simple
 ExecStart=/usr/bin/python3.11 /home/amizan8653/Desktop/git_repos/infrared-remote-project/RemoteControl.py
