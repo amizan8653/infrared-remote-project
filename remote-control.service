@@ -17,11 +17,9 @@
 Description=remote control software
 [Service]
 Type=simple
-ExecStart=/home/amizan8653/.venv/bin/python /home/amizan8653/Desktop/git_repos/infrared-remote-project/RemoteControl.py
+ExecStart=/usr/bin/python3.11 /home/amizan8653/Desktop/git_repos/infrared-remote-project/RemoteControl.py
+Environment="XDG_RUNTIME_DIR=/run/user/$UID"
 Restart=always
 WorkingDirectory=/home/amizan8653/Desktop/git_repos/infrared-remote-project
-Environment="XDG_RUNTIME_DIR=/run/user/1000"
-User=amizan8653
-Group=sudo
 [Install]
 WantedBy=multi-user.target

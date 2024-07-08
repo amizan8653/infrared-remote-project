@@ -4,11 +4,23 @@ import pygame
 import subprocess
 
 import asyncio
+import sys
+import os
+sys.path.append('/home/amizan8653/.venv/lib/python3.11/site-packages')
 from pywizlight import wizlight, PilotBuilder, discovery
+
+path_to_write=os.path.abspath(os.path.join(__file__, os.pardir, "log.txt"))
+
+file_out = open(path_to_write,  'a')
+
+def write_out(txt):
+    print(txt)
+    file_out.write(txt + "\n")
+
 
 
 async def main(): 
-        print("entering main loop")
+        write_out("entering main loop")
         
         # lightbulb initiailzation
         wiz_bulb_ip = "192.168.4.21"
@@ -19,8 +31,8 @@ async def main():
         # function takes the discovery object and returns a list of wizlight objects.
         bulbs = await discovery.discover_lights(broadcast_space=wiz_bulb_ip)
         if len(bulbs) > 0:
-                # Print the IP address of the bulb on index 0
-                print(f"Bulb found, IP address: {bulbs[0].ip}")
+                # write_out the IP address of the bulb on index 0
+                write_out(f"Bulb found, IP address: {bulbs[0].ip}")
                 wiz_bulb = bulbs[0]
                 # Set up a standard light
                 wiz_light = wizlight(wiz_bulb_ip)
@@ -47,7 +59,7 @@ async def main():
         kp4 = Cancel
         kp5 = menu
         kp6 = BrightnessUp
-        kpplus = print screen
+        kpplus = write_out screen
 
         kp1 = numlock
         kp2 = AudioStop
@@ -69,26 +81,28 @@ async def main():
 
                 if event.type == pygame.KEYDOWN:
 
-                    print(pygame.key.name(event.key))
+                    write_out(pygame.key.name(event.key))
                     key_press = pygame.key.name(event.key).lower().replace(" ", "")
+                    
+                    
 
                     
                     # USB hub
                     if key_press == "f13":
                         # usb 1
-                        print('backspace or virtual f13 pressed')
+                        write_out('backspace or virtual f13 pressed')
                         subprocess.run("irsend SEND_ONCE rybozen KEY_MACRO1", shell=True)
                     elif key_press == "f14":
                         # usb 2
-                        print('= or virtual f14 pressed')
+                        write_out('= or virtual f14 pressed')
                         subprocess.run("irsend SEND_ONCE rybozen KEY_MACRO2", shell=True)
                     elif key_press == "f15":
                         # usb 3
-                        print('/ or virtual f15 pressed')
+                        write_out('/ or virtual f15 pressed')
                         subprocess.run("irsend SEND_ONCE rybozen KEY_MACRO3", shell=True)
                     elif key_press == "f16":
                         # usb 4
-                        print('* or virtual f16 pressed')
+                        write_out('* or virtual f16 pressed')
                         subprocess.run("irsend SEND_ONCE rybozen KEY_MACRO4", shell=True)
                         
                         
@@ -96,49 +110,49 @@ async def main():
                     elif key_press == "f17":
                         # display 1 - gaming pc
                         # switch to display port on MSI monitor by pressing "ctrl shift alt f1 on keyboard". HDMI matrix - don't care.
-                        print('7 or virtual f17 pressed')
+                        write_out('7 or virtual f17 pressed')
                         
                     elif key_press == "f18":
                         # display 1 - mac
                         # switch to hdmi 1 on MSI monitor by pressing "ctrl shift alt f2 on keyboard". Then set HDMI matrix in 4 out 1 with IR remote.
-                        print('8 or virtual f18 pressed')
+                        write_out('8 or virtual f18 pressed')
                         
                         subprocess.run("irsend SEND_ONCE matrix KEY_MACRO5", shell=True)
                     elif key_press == "scrolllock":
                         # display 1 - gfe
                         # switch to hdmi 1 on MSI monitor by pressing "ctrl shift alt f2 on keyboard". Then set HDMI matrix in 2 out 2 with IR remote.
-                        print('9 or virtual scrolllock pressed')
+                        write_out('9 or virtual scrolllock pressed')
                         
                         subprocess.run("irsend SEND_ONCE matrix KEY_MACRO6", shell=True)
                     elif key_press == "cancel":
                         # display 1 - ps5
                         # switch to hdmi 2 on MSI monitor by pressing "ctrl shift alt f2 on keyboard". HDMI matrix - don't care.
-                        print('4 or virtual cancel pressed')
+                        write_out('4 or virtual cancel pressed')
 
                     elif key_press == "menu":
                         # display 1 - switch
                         # switch to hdmi 1 on MSI monitor by pressing "ctrl shift alt f2 on keyboard". Then set HDMI matrix in 3 out 2 with IR remote.
-                        print('5 or virtual menu pressed')
+                        write_out('5 or virtual menu pressed')
                         subprocess.run("irsend SEND_ONCE matrix KEY_MACRO7", shell=True)
                     elif key_press == "brightnessup":
                         # display 1 - raspberry pi
                         # switch to hdmi 1 on MSI monitor by pressing "ctrl shift alt f2 on keyboard". Then set HDMI matrix in 4 out 2 with IR remote.
-                        print('6 or virtual brightnessup pressed')
+                        write_out('6 or virtual brightnessup pressed')
                         subprocess.run("irsend SEND_ONCE matrix KEY_MACRO8", shell=True)
                         
 
                     # 8k_4x1_HDMI_SWITCH 
                     elif key_press == "numlock":
                         # display 2 - gaming pc
-                        print('1 or virtual numlock pressed')
+                        write_out('1 or virtual numlock pressed')
                         subprocess.run("irsend SEND_ONCE 8K_4X1_HDMI_SWITCH KEY_MACRO3", shell=True)
                     elif key_press == "audiostop":
                         # display 2 - mac
-                        print('2 or virtual audiostop pressed')
+                        write_out('2 or virtual audiostop pressed')
                         subprocess.run("irsend SEND_ONCE 8K_4X1_HDMI_SWITCH KEY_MACRO4", shell=True)
                     elif key_press == "audioplay":
                         # display 2 - gfe
-                        print('3 or virtual audioplay pressed')
+                        write_out('3 or virtual audioplay pressed')
                         subprocess.run("irsend SEND_ONCE 8K_4X1_HDMI_SWITCH KEY_MACRO5", shell=True)
 
                         
@@ -146,31 +160,32 @@ async def main():
                     # scenes are from: https://github.com/sbidy/pywizlight/blob/6c6e4a2c5c7c2b46e5f3159e6d290d9099f6b923/pywizlight/scenes.py#L7
                     elif key_press == "printscreen":
                         # warm light
-                        print('+ or virtual printscreen pressed')
+                        write_out('+ or virtual write_outscreen pressed')
                         if wiz_light is not None:
                             await wiz_light.turn_on(PilotBuilder(scene = 11))
                     elif key_press == "eject":
                         # daylight
-                        print('enter or virtual eject pressed')
+                        write_out('enter or virtual eject pressed')
                         if wiz_light is not None: 
                             await wiz_light.turn_on(PilotBuilder(scene = 12))
                     elif key_press == "help":
                         # off
-                        print('0 or virtual help pressed')
+                        write_out('0 or virtual help pressed')
                         if wiz_light is not None:
                             await wiz_light.turn_off()
                     elif key_press == "audionext":
                         # nightlight
-                        print('. or virtual audionext pressed')
+                        write_out('. or virtual audionext pressed')
                         await wiz_light.turn_on(PilotBuilder(scene = 14))
                         
                     # not sure what to do with - or virutal brightnessdown
                     elif key_press == "brightnessdown":
                         # nightlight
-                        print('- or virtual brightnessdown pressed')
+                        write_out('- or virtual brightnessdown pressed')
                 
                 
         pygame.quit()
+        file_out.close()
 
 
 asyncio.run(main())
