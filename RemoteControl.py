@@ -9,9 +9,12 @@ import os
 sys.path.append('/home/amizan8653/.venv/lib/python3.11/site-packages')
 from pywizlight import wizlight, PilotBuilder, discovery
 
+
 path_to_write=os.path.abspath(os.path.join(__file__, os.pardir, "log.txt"))
 
 file_out = open(path_to_write,  'a')
+
+timeout_seconds = 5
 
 def write_out(txt):
     print(txt)
@@ -24,20 +27,10 @@ async def main():
         
         # lightbulb initiailzation
         wiz_bulb_ip = "192.168.4.21"
-        wiz_light = None
 
         """Sample code to work with bulbs."""
-        # Discover all bulbs in the network via broadcast datagram (UDP)
-        # function takes the discovery object and returns a list of wizlight objects.
-        bulbs = await discovery.discover_lights(broadcast_space=wiz_bulb_ip)
-        if len(bulbs) > 0:
-                # write_out the IP address of the bulb on index 0
-                write_out(f"Bulb found, IP address: {bulbs[0].ip}")
-                wiz_bulb = bulbs[0]
-                # Set up a standard light
-                wiz_light = wizlight(wiz_bulb_ip)
-        
-        
+        wiz_light = wizlight(wiz_bulb_ip)
+
         
         pygame.init()
         window = pygame.display.set_mode((300, 300), pygame.HWSURFACE)
@@ -154,7 +147,6 @@ async def main():
                         # display 2 - gfe
                         write_out('3 or virtual audioplay pressed')
                         subprocess.run("irsend SEND_ONCE 8K_4X1_HDMI_SWITCH KEY_MACRO5", shell=True)
-
                         
                     # wiz light
                     # scenes are from: https://github.com/sbidy/pywizlight/blob/6c6e4a2c5c7c2b46e5f3159e6d290d9099f6b923/pywizlight/scenes.py#L7
@@ -182,7 +174,9 @@ async def main():
                     elif key_press == "brightnessdown":
                         # nightlight
                         write_out('- or virtual brightnessdown pressed')
-                
+
+
+              
                 
         pygame.quit()
         file_out.close()
