@@ -10,15 +10,8 @@ sys.path.append('/home/amizan8653/.venv/lib/python3.11/site-packages')
 from pywizlight import wizlight, PilotBuilder, discovery
 
 
-path_to_write=os.path.abspath(os.path.join(__file__, os.pardir, "log.txt"))
-
-file_out = open(path_to_write,  'a')
-
-timeout_seconds = 5
-
 def write_out(txt):
     print(txt)
-    file_out.write(txt + "\n")
 
 
 
@@ -179,7 +172,6 @@ async def main():
               
                 
         pygame.quit()
-        file_out.close()
 
 
 asyncio.run(main())
