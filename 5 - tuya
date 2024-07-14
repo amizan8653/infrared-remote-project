@@ -1,0 +1,8 @@
+install node: 
+https://nodejs.org/en/download/package-manager
+
+install tuya for node: 
+npm i -g @tuyapi/cli
+
+After registering your tuya devices,go ahead and run the wizard to scan
+tuya-cli wizard

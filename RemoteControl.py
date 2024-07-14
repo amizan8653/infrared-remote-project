@@ -3,15 +3,33 @@
 import pygame
 import subprocess
 
+import time
 import asyncio
 import sys
 import os
+
+# load virutal python environment libraries
 sys.path.append('/home/amizan8653/.venv/lib/python3.11/site-packages')
+
+# wiz lights library from virtual environment
 from pywizlight import wizlight, PilotBuilder, discovery
+
+# tuya / smart life library from virutal environment
+# from tuyapy import TuyaApi
 
 
 def write_out(txt):
     print(txt)
+    
+    
+def getTuyaApi():
+    tuyaApi = TuyaApi()
+    # register your devices with tuya / smartlife app to define the values below
+    # one values are defined you can put them inside either ~/.bashrc or ~/.bash_profile
+    # for country code, you can find it here https://github.com/tuya/tuya-home-assistant/blob/main/docs/regions_dataCenters.md
+    username,password,country_code = os.environ['TUYA_USERNAME'],os.environ['TUYA_PASSWORD'],os.environ['TUYA_COUNTRY_CODE']
+    tuyaApi.init(username,password,country_code)
+    return tuyaApi
 
 
 
@@ -20,9 +38,10 @@ async def main():
         
         # lightbulb initiailzation
         wiz_bulb_ip = "192.168.4.21"
-
-        """Sample code to work with bulbs."""
         wiz_light = wizlight(wiz_bulb_ip)
+        
+        # tuya 
+        # tuyaApi = getTuyaApi()
 
         
         pygame.init()
@@ -59,6 +78,7 @@ async def main():
 
         mainloop=True
         while mainloop:
+            time.sleep(0.1)
             for event in pygame.event.get():
 
                 if event.type == pygame.QUIT:
@@ -163,7 +183,7 @@ async def main():
                         write_out('. or virtual audionext pressed')
                         await wiz_light.turn_on(PilotBuilder(scene = 14))
                         
-                    # not sure what to do with - or virutal brightnessdown
+                    # toggle tuya lights
                     elif key_press == "brightnessdown":
                         # nightlight
                         write_out('- or virtual brightnessdown pressed')

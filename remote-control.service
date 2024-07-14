@@ -11,17 +11,19 @@
 # some debug info can be found with journalctl -xe -u remote-control.service
 # how to set env vars for systemd service: https://serverfault.com/a/413408
 
+#  https://github.com/pygame/pygame/issues/412 thing to try
+
 
 
 [Unit]
 Description=remote control software
-# for some reason, this remote control service messes up HDMI sound output unless you wait for it to load first.
-After=sound.target
+
 [Service]
 Type=simple
 ExecStart=/usr/bin/python3.11 /home/amizan8653/Desktop/git_repos/infrared-remote-project/RemoteControl.py
 Environment="XDG_RUNTIME_DIR=/run/user/$UID"
 Restart=always
 WorkingDirectory=/home/amizan8653/Desktop/git_repos/infrared-remote-project
+
 [Install]
 WantedBy=multi-user.target
