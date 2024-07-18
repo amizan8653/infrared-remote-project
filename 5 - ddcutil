@@ -1,0 +1,103 @@
+basiaclly... I enabled hdmi CEC on my monitor (probably disabled cause you're expected to use gaming intelligence app)
+
+You HAVE to connect directly to the monitor - no hub or switch or matrx. 
+
+Initially used this with display port hooked up to my monitor and hdmi cec off. and a 2nd display. this way I could view what VCP code was for input and all the values. 
+Also found the one for volume as well.
+
+VCP codes for switching inputs on MSI monitor: 
+60 -> 15 Display Port
+60 -> 17 HDMI 1
+60 -> 18 HDMI 2
+
+volume controled at VCP code 60 and has max value of 100. 
+
+anyways, linux utility: 
+
+# install: 
+sudo apt-get install ddcutil
+
+# detect monitors: 
+sudo ddcutil detect
+
+# output if you're connected to a HUB (and maybe if you're connected via HDMI and have HDMI CEC turned off):
+
+```
+Invalid display
+   I2C bus:  /dev/i2c-11
+   DRM connector:           card1-HDMI-A-1
+   EDID synopsis:
+      Mfg id:               MSI - Microstep
+      Model:                MPG271QX OLED
+      Product code:         15575  (0x3cd7)
+      Serial number:        
+      Binary serial number: 16843009 (0x01010101)
+      Manufacture year:     2024,  Week: 3
+   DDC communication failed
+
+```
+
+
+#output with direct connection via HDMI and HDMI CEC is turned on: 
+```
+Display 1
+   I2C bus:  /dev/i2c-11
+   DRM connector:           card1-HDMI-A-1
+   EDID synopsis:
+      Mfg id:               MSI - Microstep
+      Model:                MPG271QX OLED
+      Product code:         15575  (0x3cd7)
+      Serial number:        
+      Binary serial number: 16843009 (0x01010101)
+      Manufacture year:     2024,  Week: 3
+   VCP version:         2.1
+```
+
+# output of getting all the VCP mappings: 
+
+ddcutil getvcp all
+
+```
+VCP code 0x02 (New control value             ): No user controls are present (0xff)
+VCP code 0x0b (Color temperature increment   ): 50 degree(s) Kelvin
+VCP code 0x0c (Color temperature request     ): 3000 + 70 * (feature 0B color temp increment) degree(s) Kelvin
+VCP code 0x10 (Brightness                    ): current value =    90, max value =   100
+VCP code 0x12 (Contrast                      ): current value =   100, max value =   100
+VCP code 0x14 (Select color preset           ): 8200 K (sl=0x07)
+VCP code 0x16 (Video gain: Red               ): current value =   100, max value =   100
+VCP code 0x18 (Video gain: Green             ): current value =   100, max value =   100
+VCP code 0x1a (Video gain: Blue              ): current value =   100, max value =   100
+VCP code 0x52 (Active control                ): Value: 0x00
+VCP code 0x60 (Input Source                  ): HDMI-2 (sl=0x12)
+VCP code 0x62 (Audio speaker volume          ): current value =    70, max value =   100
+VCP code 0x6c (Video black level: Red        ): current value =    50, max value =   100
+VCP code 0x6e (Video black level: Green      ): current value =    50, max value =   100
+VCP code 0x70 (Video black level: Blue       ): current value =    50, max value =   100
+VCP code 0x8d (Audio Mute                    ): Unmute the audio (sl=0x02)
+VCP code 0xac (Horizontal frequency          ): 1964 hz
+VCP code 0xae (Vertical frequency            ): 60.00 hz
+VCP code 0xb2 (Flat panel sub-pixel layout   ): Red/Green/Blue vertical stripe (sl=0x01)
+VCP code 0xb6 (Display technology type       ): LCD (active matrix) (sl=0x03)
+VCP code 0xc0 (Display usage time            ): Usage time (hours) = 379 (0x00017b) mh=0xff, ml=0xff, sh=0x01, sl=0x7b
+VCP code 0xc6 (Application enable key        ): 0x006f
+VCP code 0xc8 (Display controller type       ): Mfg: Novatek (sl=0x12), controller number: mh=0xff, ml=0xff, sh=0x00
+VCP code 0xc9 (Display firmware level        ): 0.0
+VCP code 0xca (OSD                           ): OSD Enabled (sl=0x02)
+VCP code 0xcc (OSD Language                  ): English (sl=0x02)
+VCP code 0xd6 (Power mode                    ): DPM: On,  DPMS: Off (sl=0x01)
+VCP code 0xdc (Display Mode                  ): Mixed (sl=0x02)
+VCP code 0xdf (VCP Version                   ): 2.1
+
+```
+
+# command to switch to DP:
+ddcutil setvcp 60 15
+
+# command to switch to HDMI 1: 
+ddcutil setvcp 60 17
+
+# command to switch to HDMI 2:
+ddcutil setvcp 60 18
+
+# command to change volume to 75: 
+ddcutil setvcp 62 75
