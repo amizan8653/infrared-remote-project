@@ -99,5 +99,11 @@ ddcutil setvcp 60 17
 # command to switch to HDMI 2:
 ddcutil setvcp 60 18
 
+
+# get current volume: 
+ddcutil getvcp 62
+`VCP code 0x62 (Audio speaker volume          ): current value =    75, max value =   100`
+
 # command to change volume to 75: 
-ddcutil setvcp 62 75
+ddcutil setvcp 62 80
+

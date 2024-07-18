@@ -32,7 +32,15 @@ def getTuyaApi():
     return tuyaApi
 
 
+def monitor_hdmi_2():
+        subprocess.run("ddcutil setvcp 60 18", shell=True)
 
+def monitor_hdmi_1():
+        subprocess.run("ddcutil setvcp 60 17", shell=True)
+
+def monitor_dp():
+        subprocess.run("ddcutil setvcp 60 15", shell=True)
+        
 async def main(): 
         write_out("entering main loop")
         
@@ -112,39 +120,43 @@ async def main():
                         subprocess.run("irsend SEND_ONCE rybozen KEY_MACRO4", shell=True)
                         
                         
-                    # 4x2 HDMI Matrix
+                    # Main Monitor input and 4x2 HDMI Matrix
                     elif key_press == "f17":
                         # display 1 - gaming pc
-                        # switch to display port on MSI monitor by pressing "ctrl shift alt f1 on keyboard". HDMI matrix - don't care.
+                        # switch to display port on MSI monitor. HDMI matrix - don't care.
                         write_out('7 or virtual f17 pressed')
+                        monitor_dp()
                         
                     elif key_press == "f18":
                         # display 1 - mac
-                        # switch to hdmi 1 on MSI monitor by pressing "ctrl shift alt f2 on keyboard". Then set HDMI matrix in 4 out 1 with IR remote.
+                        # switch to hdmi 1 on MSI monitor. Then set HDMI matrix in 4 out 1 with IR remote.
                         write_out('8 or virtual f18 pressed')
-                        
+                        monitor_hdmi_1()
                         subprocess.run("irsend SEND_ONCE matrix KEY_MACRO5", shell=True)
                     elif key_press == "scrolllock":
                         # display 1 - gfe
-                        # switch to hdmi 1 on MSI monitor by pressing "ctrl shift alt f2 on keyboard". Then set HDMI matrix in 2 out 2 with IR remote.
+                        # switch to hdmi 1 on MSI monitor. Then set HDMI matrix in 2 out 2 with IR remote.
                         write_out('9 or virtual scrolllock pressed')
-                        
+                        monitor_hdmi_1()
                         subprocess.run("irsend SEND_ONCE matrix KEY_MACRO6", shell=True)
                     elif key_press == "cancel":
                         # display 1 - ps5
-                        # switch to hdmi 2 on MSI monitor by pressing "ctrl shift alt f2 on keyboard". HDMI matrix - don't care.
+                        # switch to hdmi 1 on MSI monitor. Then set HDMI matrix in 4 out 2 with IR remote.
                         write_out('4 or virtual cancel pressed')
-
+                        monitor_hdmi_1()
+                        subprocess.run("irsend SEND_ONCE matrix KEY_MACRO8", shell=True)
                     elif key_press == "menu":
                         # display 1 - switch
-                        # switch to hdmi 1 on MSI monitor by pressing "ctrl shift alt f2 on keyboard". Then set HDMI matrix in 3 out 2 with IR remote.
+                        # switch to hdmi 1 on MSI monitor. Then set HDMI matrix in 3 out 2 with IR remote.
                         write_out('5 or virtual menu pressed')
+                        monitor_hdmi_1()
                         subprocess.run("irsend SEND_ONCE matrix KEY_MACRO7", shell=True)
                     elif key_press == "brightnessup":
                         # display 1 - raspberry pi
-                        # switch to hdmi 1 on MSI monitor by pressing "ctrl shift alt f2 on keyboard". Then set HDMI matrix in 4 out 2 with IR remote.
+                        # switch to hdmi 2 on MSI monitor. HDMI matrix - don't care.
+                        monitor_hdmi_2()
                         write_out('6 or virtual brightnessup pressed')
-                        subprocess.run("irsend SEND_ONCE matrix KEY_MACRO8", shell=True)
+                        
                         
 
                     # 8k_4x1_HDMI_SWITCH 
@@ -156,16 +168,22 @@ async def main():
                         # display 2 - mac
                         write_out('2 or virtual audiostop pressed')
                         subprocess.run("irsend SEND_ONCE 8K_4X1_HDMI_SWITCH KEY_MACRO4", shell=True)
-                    elif key_press == "audioplay":
-                        # display 2 - gfe
-                        write_out('3 or virtual audioplay pressed')
-                        subprocess.run("irsend SEND_ONCE 8K_4X1_HDMI_SWITCH KEY_MACRO5", shell=True)
+                        
+                    # increase monitor volume by 5
+                    elif key_press == "brightnessdown":
+                        # volume up
+                        write_out('- or virtual brightnessdown pressed')
+                    elif key_press == "printscreen":
+                        write_out('+ or virtual printscreen pressed')
+                        # volume down
+                    
+                    
                         
                     # wiz light
                     # scenes are from: https://github.com/sbidy/pywizlight/blob/6c6e4a2c5c7c2b46e5f3159e6d290d9099f6b923/pywizlight/scenes.py#L7
-                    elif key_press == "printscreen":
+                    elif key_press == "audioplay":
                         # warm light
-                        write_out('+ or virtual write_outscreen pressed')
+                        write_out('3 or virtual audioplay pressed')
                         if wiz_light is not None:
                             await wiz_light.turn_on(PilotBuilder(scene = 11))
                     elif key_press == "eject":
@@ -183,10 +201,6 @@ async def main():
                         write_out('. or virtual audionext pressed')
                         await wiz_light.turn_on(PilotBuilder(scene = 14))
                         
-                    # toggle tuya lights
-                    elif key_press == "brightnessdown":
-                        # nightlight
-                        write_out('- or virtual brightnessdown pressed')
 
 
               
