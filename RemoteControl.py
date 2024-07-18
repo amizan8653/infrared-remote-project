@@ -7,6 +7,7 @@ import time
 import asyncio
 import sys
 import os
+import re
 
 # load virutal python environment libraries
 sys.path.append('/home/amizan8653/.venv/lib/python3.11/site-packages')
@@ -14,22 +15,43 @@ sys.path.append('/home/amizan8653/.venv/lib/python3.11/site-packages')
 # wiz lights library from virtual environment
 from pywizlight import wizlight, PilotBuilder, discovery
 
-# tuya / smart life library from virutal environment
-# from tuyapy import TuyaApi
+
+# regex for parsing volume
+exp = re.compile(r"(current value =\s*)(\d+)")
+
+
+def get_monitor_volume():
+    shell_output = subprocess.run("ddcutil getvcp 62", shell=True, capture_output=True, text=True)
+    if shell_output is not None and shell_output.stdout is not None:
+        result = exp.search(shell_output.stdout)
+        if result is not None and len(result.groups()) == 2:
+            return result.group(2).strip()
+    print("error in getting volume... returning a default to not crash rest of app")
+    print("raising and lowering volume won't work, but input switching will still remain functional")
+    return 70
+    
+
+def set_monitor_volulme(new_value):
+    new_value = min(100, new_value)
+    new_value = max(0, new_value)
+    new_value = str(new_value)
+    subprocess.run("ddcutil setvcp 62 " + new_value, shell=True)
+    
+def monitor_volume_plus(value):
+    curr = get_monitor_volume()
+    new_value = int(curr) + value
+    set_monitor_volulme(new_value)
+    
+    
+def monitor_volume_minus(value):
+    curr = get_monitor_volume()
+    new_value = int(curr) - value
+    set_monitor_volulme(new_value)
 
 
 def write_out(txt):
     print(txt)
     
-    
-def getTuyaApi():
-    tuyaApi = TuyaApi()
-    # register your devices with tuya / smartlife app to define the values below
-    # one values are defined you can put them inside either ~/.bashrc or ~/.bash_profile
-    # for country code, you can find it here https://github.com/tuya/tuya-home-assistant/blob/main/docs/regions_dataCenters.md
-    username,password,country_code = os.environ['TUYA_USERNAME'],os.environ['TUYA_PASSWORD'],os.environ['TUYA_COUNTRY_CODE']
-    tuyaApi.init(username,password,country_code)
-    return tuyaApi
 
 
 def monitor_hdmi_2():
@@ -47,11 +69,7 @@ async def main():
         # lightbulb initiailzation
         wiz_bulb_ip = "192.168.4.21"
         wiz_light = wizlight(wiz_bulb_ip)
-        
-        # tuya 
-        # tuyaApi = getTuyaApi()
 
-        
         pygame.init()
         window = pygame.display.set_mode((300, 300), pygame.HWSURFACE)
         pygame.display.set_caption("Pygame Demonstration")
@@ -169,13 +187,16 @@ async def main():
                         write_out('2 or virtual audiostop pressed')
                         subprocess.run("irsend SEND_ONCE 8K_4X1_HDMI_SWITCH KEY_MACRO4", shell=True)
                         
-                    # increase monitor volume by 5
+                        
+                    # main monitor volume
                     elif key_press == "brightnessdown":
                         # volume up
                         write_out('- or virtual brightnessdown pressed')
+                        monitor_volume_plus(5)
                     elif key_press == "printscreen":
                         write_out('+ or virtual printscreen pressed')
                         # volume down
+                        monitor_volume_minus(5)
                     
                     
                         
