@@ -25,28 +25,23 @@ def get_monitor_volume():
     if shell_output is not None and shell_output.stdout is not None:
         result = exp.search(shell_output.stdout)
         if result is not None and len(result.groups()) == 2:
-            return result.group(2).strip()
+            return int(result.group(2).strip())
     print("error in getting volume... returning a default to not crash rest of app")
     print("raising and lowering volume won't work, but input switching will still remain functional")
     return 70
     
 
-def set_monitor_volulme(new_value):
+
+def get_next_volume(current, step):
+    new_value = current + step
     new_value = min(100, new_value)
     new_value = max(0, new_value)
-    new_value = str(new_value)
-    subprocess.run("ddcutil setvcp 62 " + new_value, shell=True)
-    
-def monitor_volume_plus(value):
-    curr = get_monitor_volume()
-    new_value = int(curr) + value
-    set_monitor_volulme(new_value)
-    
-    
-def monitor_volume_minus(value):
-    curr = get_monitor_volume()
-    new_value = int(curr) - value
-    set_monitor_volulme(new_value)
+    return new_value
+
+
+def set_monitor_volume(volume):
+    subprocess.run("ddcutil setvcp 62 " + str(volume), shell=True)
+
 
 
 def write_out(txt):
@@ -73,6 +68,8 @@ async def main():
         pygame.init()
         window = pygame.display.set_mode((300, 300), pygame.HWSURFACE)
         pygame.display.set_caption("Pygame Demonstration")
+        
+        current_volume = get_monitor_volume()
 
         """
         key mappings: 
@@ -188,18 +185,19 @@ async def main():
                         subprocess.run("irsend SEND_ONCE 8K_4X1_HDMI_SWITCH KEY_MACRO4", shell=True)
                         
                         
+                        
+                        
                     # main monitor volume
                     elif key_press == "brightnessdown":
                         # volume up
                         write_out('- or virtual brightnessdown pressed')
-                        monitor_volume_plus(5)
+                        current_volume = get_next_volume(current_volume, 10)
+                        set_monitor_volume(current_volume)
                     elif key_press == "printscreen":
                         write_out('+ or virtual printscreen pressed')
                         # volume down
-                        monitor_volume_minus(5)
-                    
-                    
-                        
+                        current_volume = get_next_volume(current_volume, -10)
+                        set_monitor_volume(current_volume)
                     # wiz light
                     # scenes are from: https://github.com/sbidy/pywizlight/blob/6c6e4a2c5c7c2b46e5f3159e6d290d9099f6b923/pywizlight/scenes.py#L7
                     elif key_press == "audioplay":
