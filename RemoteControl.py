@@ -8,6 +8,7 @@ import asyncio
 import sys
 import os
 import re
+from enum import Enum
 
 # load virutal python environment libraries
 sys.path.append('/home/amizan8653/.venv/lib/python3.11/site-packages')
@@ -16,18 +17,21 @@ sys.path.append('/home/amizan8653/.venv/lib/python3.11/site-packages')
 from pywizlight import wizlight, PilotBuilder, discovery
 
 
-# regex for parsing volume
-exp = re.compile(r"(current value =\s*)(\d+)")
 
+class LAST_LIGHT_MODE(Enum):
+    WARM = 1
+    DAYLIGHT = 2
+    NIGHTLIGHT = 3
+    
 
 def get_monitor_volume():
     shell_output = subprocess.run("ddcutil getvcp 62", shell=True, capture_output=True, text=True)
     if shell_output is not None and shell_output.stdout is not None:
+        exp = re.compile(r"(current value =\s*)(\d+)")
         result = exp.search(shell_output.stdout)
         if result is not None and len(result.groups()) == 2:
             return int(result.group(2).strip())
     print("error in getting volume... returning a default to not crash rest of app")
-    print("raising and lowering volume won't work, but input switching will still remain functional")
     return 70
     
 
@@ -49,6 +53,34 @@ def write_out(txt):
     
 
 
+async def lights_off(lights):
+        for light in lights: 
+                if light is not None:
+                    await light.turn_off()
+                    
+
+async def lights_on(lights, scene_number):
+        for light in lights: 
+                if light is not None:
+                    await light.turn_on(PilotBuilder(scene = scene_number))
+                    
+
+def get_candle_lights(): 
+        # candle lightbulb initialization
+        candle_wiz_bulb_ip_1 = "192.168.4.78"
+        candle_wiz_bulb_ip_2 = "192.168.4.79"
+        candle_wiz_bulb_ip_3 = "192.168.4.80"
+        candle_lights = [wizlight(ip_address) for ip_address in [candle_wiz_bulb_ip_1, candle_wiz_bulb_ip_2, candle_wiz_bulb_ip_3]]
+        return candle_lights
+        
+        
+def get_main_light():
+        # main lightbulb initiailzation
+        main_wiz_bulb_ip = "192.168.4.21"
+        main_wiz_light = [wizlight(main_wiz_bulb_ip)]
+        return main_wiz_light
+
+
 def monitor_hdmi_2():
         subprocess.run("ddcutil setvcp 60 18", shell=True)
 
@@ -60,10 +92,16 @@ def monitor_dp():
         
 async def main(): 
         write_out("entering main loop")
+
+
+        # light level 0 = just main light to be turned on. level 1 means also turn on candle lights
+        light_level = 1
         
-        # lightbulb initiailzation
-        wiz_bulb_ip = "192.168.4.21"
-        wiz_light = wizlight(wiz_bulb_ip)
+        main_wiz_light = get_main_light()
+        
+        candle_lights = get_candle_lights()
+
+        all_lights = main_wiz_light + candle_lights
 
         pygame.init()
         window = pygame.display.set_mode((300, 300), pygame.HWSURFACE)
@@ -98,6 +136,8 @@ async def main():
         kpdot = AudioNext
 
         """
+        
+        last_light_mode = None
 
         mainloop=True
         while mainloop:
@@ -198,27 +238,47 @@ async def main():
                         # volume down
                         current_volume = get_next_volume(current_volume, -10)
                         set_monitor_volume(current_volume)
+                        
+                        
                     # wiz light
                     # scenes are from: https://github.com/sbidy/pywizlight/blob/6c6e4a2c5c7c2b46e5f3159e6d290d9099f6b923/pywizlight/scenes.py#L7
                     elif key_press == "audioplay":
                         # warm light
                         write_out('3 or virtual audioplay pressed')
-                        if wiz_light is not None:
-                            await wiz_light.turn_on(PilotBuilder(scene = 11))
+                        if light_level == 0 or last_light_mode is not LAST_LIGHT_MODE.WARM:
+                                await lights_on(main_wiz_light, 11)
+                                await lights_off(candle_lights)
+                        else: 
+                                await lights_on(all_lights, 11)
+                        light_level = (light_level + 1) % 2
+                        last_light_mode = LAST_LIGHT_MODE.WARM
+                        
                     elif key_press == "eject":
                         # daylight
                         write_out('enter or virtual eject pressed')
-                        if wiz_light is not None: 
-                            await wiz_light.turn_on(PilotBuilder(scene = 12))
+                        if light_level == 0 or last_light_mode is not LAST_LIGHT_MODE.DAYLIGHT:
+                                await lights_on(main_wiz_light, 12)
+                                await lights_off(candle_lights)
+                        else: 
+                                await lights_on(all_lights, 12)
+                        light_level = (light_level + 1) % 2
+                        last_light_mode = LAST_LIGHT_MODE.DAYLIGHT
                     elif key_press == "help":
                         # off
                         write_out('0 or virtual help pressed')
-                        if wiz_light is not None:
-                            await wiz_light.turn_off()
+                        await lights_off(all_lights)
+                        light_level = 0
+                        last_light_mode = None
                     elif key_press == "audionext":
                         # nightlight
                         write_out('. or virtual audionext pressed')
-                        await wiz_light.turn_on(PilotBuilder(scene = 14))
+                        if light_level == 0 or last_light_mode is not LAST_LIGHT_MODE.NIGHTLIGHT:
+                                await lights_on(main_wiz_light, 14)
+                                await lights_off(candle_lights)
+                        else: 
+                                await lights_on(all_lights, 14)
+                        light_level = (light_level + 1) % 2
+                        last_light_mode = LAST_LIGHT_MODE.NIGHTLIGHT
                         
 
 
