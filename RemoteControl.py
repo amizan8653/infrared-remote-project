@@ -138,34 +138,6 @@ async def main():
         pygame.display.set_caption("Pygame Demonstration")
         
         current_volume = get_monitor_volume()
-
-        """
-        key mappings: 
-
-        backspace = f13
-        = = f14
-        kpslash = f15
-        kpasterisk = F16
-
-        kp7 = F17
-        kp8 = F18
-        kp9 = scroll lock
-        kpminus = BrightnessDown
-
-        kp4 = Cancel
-        kp5 = menu
-        kp6 = BrightnessUp
-        kpplus = write_out screen
-
-        kp1 = numlock
-        kp2 = AudioStop
-        kp3 = AudioPlay
-
-        kpenter = Eject
-        kp0 = help
-        kpdot = AudioNext
-
-        """
         
         last_light_mode = None
 
