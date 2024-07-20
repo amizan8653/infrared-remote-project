@@ -56,14 +56,18 @@ def write_out(txt):
 async def lights_off(lights):
         for light in lights: 
                 if light is not None:
-                    await light.turn_off()
-                    
+                    try: 
+                        await asyncio.wait_for(light.turn_off(), timeout=2)
+                    except asyncio.TimeoutError:
+                        print("timeout occur on light ON operation. aborting")
 
 async def lights_on(lights, scene_number):
         for light in lights: 
                 if light is not None:
-                    await light.turn_on(PilotBuilder(scene = scene_number))
-                    
+                    try:
+                        await asyncio.wait_for(light.turn_on(PilotBuilder(scene = scene_number)), timeout=2)
+                    except asyncio.TimeoutError:
+                        print("timeout occur on light OFF operation. aborting")
 
 def get_candle_lights(): 
         # candle lightbulb initialization
