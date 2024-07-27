@@ -275,7 +275,7 @@ class DeviceSwitcher:
 
             mainloop=True
             while mainloop:
-                time.sleep(0.1)
+                time.sleep(0.05)
                 for event in pygame.event.get():
 
                     if event.type == pygame.QUIT:
