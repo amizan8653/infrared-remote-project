@@ -6,7 +6,6 @@ import subprocess
 import time
 import asyncio
 import sys
-import os
 import re
 from enum import Enum
 
