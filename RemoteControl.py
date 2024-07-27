@@ -95,8 +95,7 @@ class DeviceSwitcher:
         DeviceSwitcher.write_out('{real} or virtual {virtual} pressed'.format(real=virtual_key, virtual=virtual_key.value))
         
 
-    @staticmethod
-    async def lights_off(lights):
+    async def lights_off(self, lights):
             for light in lights: 
                     if light is not None:
                         try: 
@@ -104,8 +103,7 @@ class DeviceSwitcher:
                         except asyncio.TimeoutError:
                             print("timeout occur on light ON operation. aborting")
 
-    @staticmethod
-    async def lights_on(lights, scene_number):
+    async def lights_on(self, lights, scene_number):
             for light in lights: 
                     if light is not None:
                         try:
@@ -294,4 +292,4 @@ class DeviceSwitcher:
 
 if __name__ == "__main__":
     deviceSwitcher = DeviceSwitcher()
-    asyncio.run(deviceSwitcher.main())
+    asyncio.get_event_loop().run_until_complete(deviceSwitcher.main())
