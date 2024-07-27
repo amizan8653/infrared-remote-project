@@ -91,8 +91,8 @@ class DeviceSwitcher:
         print(txt)
         
     @staticmethod
-    def write_out_keypress(self, virtual_key):
-        self.write_out('{real} or virtual {virtual} pressed'.format(real=virtual_key, virtual=virtual_key.value))
+    def write_out_keypress(virtual_key):
+        DeviceSwitcher.write_out('{real} or virtual {virtual} pressed'.format(real=virtual_key, virtual=virtual_key.value))
         
 
     @staticmethod
@@ -157,7 +157,7 @@ class DeviceSwitcher:
         subprocess.run("irsend SEND_ONCE rybozen KEY_MACRO4", shell=True)
         
 
-    def execute_keypress(key_press):
+    async def execute_keypress(self, key_press):
         match key_press:
             # USB hub
             case VIRTUAL_KEY_PRESS.BACKSPACE.value:
@@ -224,13 +224,13 @@ class DeviceSwitcher:
             case VIRTUAL_KEY_PRESS.MINUS.value:
                 # volume up
                 self.write_out_keypress(VIRTUAL_KEY_PRESS.MINUS)
-                current_volume = self.get_next_volume(current_volume, 10)
-                self.set_monitor_volume(current_volume)
+                self.current_volume = self.get_next_volume(self.current_volume, 10)
+                self.set_monitor_volume(self.current_volume)
             case VIRTUAL_KEY_PRESS.PLUS.value:
                 self.write_out_keypress(VIRTUAL_KEY_PRESS.PLUS)
                 # volume down
-                current_volume = self.get_next_volume(current_volume, -10)
-                self.set_monitor_volume(current_volume)
+                self.current_volume = self.get_next_volume(self.current_volume, -10)
+                self.set_monitor_volume(self.current_volume)
                 
             # wiz light
             # scenes are from: https://github.com/sbidy/pywizlight/blob/6c6e4a2c5c7c2b46e5f3159e6d290d9099f6b923/pywizlight/scenes.py#L7
@@ -274,7 +274,7 @@ class DeviceSwitcher:
             
 
     async def main(self): 
-            write_out("entering main loop")
+            self.write_out("entering main loop")
 
             mainloop=True
             while mainloop:
@@ -288,7 +288,7 @@ class DeviceSwitcher:
 
                         self.write_out(pygame.key.name(event.key))
                         key_press = pygame.key.name(event.key).lower().replace(" ", "")
-                        self.execute_keypress(key_press) 
+                        await self.execute_keypress(key_press) 
             pygame.quit()
 
 
