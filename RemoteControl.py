@@ -216,7 +216,10 @@ class DeviceSwitcher:
                 # display 2 - mac
                 self.write_out_keypress(VIRTUAL_KEY_PRESS.TWO)
                 subprocess.run("irsend SEND_ONCE 8K_4X1_HDMI_SWITCH KEY_MACRO4", shell=True)
-                
+            case VIRTUAL_KEY_PRESS.THREE.value:
+                # display 3 - raspberry pi
+                self.write_out_keypress(VIRTUAL_KEY_PRESS.THREE)
+                subprocess.run("irsend SEND_ONCE 8K_4X1_HDMI_SWITCH KEY_MACRO5", shell=True)
             # main monitor volume
             case VIRTUAL_KEY_PRESS.MINUS.value:
                 # volume up
@@ -231,16 +234,16 @@ class DeviceSwitcher:
                 
             # wiz light
             # scenes are from: https://github.com/sbidy/pywizlight/blob/6c6e4a2c5c7c2b46e5f3159e6d290d9099f6b923/pywizlight/scenes.py#L7
-            case VIRTUAL_KEY_PRESS.THREE.value:
-                # warm light
-                self.write_out_keypress(VIRTUAL_KEY_PRESS.THREE)
-                if self.light_level == 0 or self.last_light_mode is not LAST_LIGHT_MODE.WARM:
-                        await self.lights_on(self.main_wiz_light, 11)
-                        await self.lights_off(self.candle_lights)
-                else: 
-                        await self.lights_on(self.all_lights, 11)
-                self.light_level = (self.light_level + 1) % 2
-                self.last_light_mode = LAST_LIGHT_MODE.WARM
+            # case VIRTUAL_KEY_PRESS.THREE.value:
+            #     # warm light
+            #     self.write_out_keypress(VIRTUAL_KEY_PRESS.THREE)
+            #     if self.light_level == 0 or self.last_light_mode is not LAST_LIGHT_MODE.WARM:
+            #             await self.lights_on(self.main_wiz_light, 11)
+            #             await self.lights_off(self.candle_lights)
+            #     else: 
+            #             await self.lights_on(self.all_lights, 11)
+            #     self.light_level = (self.light_level + 1) % 2
+            #     self.last_light_mode = LAST_LIGHT_MODE.WARM
                 
             case VIRTUAL_KEY_PRESS.ENTER.value:
                 # daylight
