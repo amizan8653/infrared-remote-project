@@ -95,20 +95,10 @@ class DeviceSwitcher:
         
 
     async def lights_off(self, lights):
-            for light in lights: 
-                    if light is not None:
-                        try: 
-                            await asyncio.wait_for(light.turn_off(), timeout=2)
-                        except asyncio.TimeoutError:
-                            print("timeout occur on light ON operation. aborting")
+            await asyncio.gather(*[light.turn_off() for light in lights if light is not None])
 
     async def lights_on(self, lights, scene_number):
-            for light in lights: 
-                    if light is not None:
-                        try:
-                            await asyncio.wait_for(light.turn_on(PilotBuilder(scene = scene_number)), timeout=2)
-                        except asyncio.TimeoutError:
-                            print("timeout occur on light OFF operation. aborting")
+            await asyncio.gather(*[light.turn_on(PilotBuilder(scene = scene_number)) for light in lights if light is not None])
 
     def get_candle_lights(self): 
             # candle lightbulb initialization
