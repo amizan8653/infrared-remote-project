@@ -97,19 +97,16 @@ class DeviceSwitcher:
         
         
     async def light_operation(self, lights, scene_numbers):
-            light_scene_number_pairs = [i for i in zip(lights, scene_numbers)]
-            light_scene_number_pairs = [i for i in light_scene_number_pairs if i[0] is not None]
-
             try:
                 # gather tasks with a timeout
                 async with asyncio.timeout(self.light_timeout):
                     # run the tasks
                     await asyncio.gather(
                          *[
-                              light_scene_tup[0].turn_on(PilotBuilder(scene = light_scene_tup[1])) 
-                              if light_scene_tup[1] is not None 
-                              else light_scene_tup[0].turn_off() 
-                              for light_scene_tup in light_scene_number_pairs])
+                              light.turn_on(PilotBuilder(scene = scene)) 
+                              if scene is not None 
+                              else light.turn_off() 
+                              for light, scene in zip(lights, scene_numbers)])
                     print("Lights operation completed successfully!")
                     return True
             except asyncio.TimeoutError:
