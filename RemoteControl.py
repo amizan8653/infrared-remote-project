@@ -216,10 +216,10 @@ class DeviceSwitcher:
                 # display 2 - mac
                 self.write_out_keypress(VIRTUAL_KEY_PRESS.TWO)
                 subprocess.run("irsend SEND_ONCE 8K_4X1_HDMI_SWITCH KEY_MACRO4", shell=True)
-            # case VIRTUAL_KEY_PRESS.THREE.value:
-            #     # display 3 - raspberry pi
-            #     self.write_out_keypress(VIRTUAL_KEY_PRESS.THREE)
-            #     subprocess.run("irsend SEND_ONCE 8K_4X1_HDMI_SWITCH KEY_MACRO5", shell=True)
+            case VIRTUAL_KEY_PRESS.THREE.value:
+                # display 3 - raspberry pi
+                self.write_out_keypress(VIRTUAL_KEY_PRESS.THREE)
+                subprocess.run("irsend SEND_ONCE 8K_4X1_HDMI_SWITCH KEY_MACRO5", shell=True)
 
             # main monitor volume
             case VIRTUAL_KEY_PRESS.MINUS.value:
@@ -235,17 +235,17 @@ class DeviceSwitcher:
                 
             # wiz light
             # scenes are from: https://github.com/sbidy/pywizlight/blob/6c6e4a2c5c7c2b46e5f3159e6d290d9099f6b923/pywizlight/scenes.py#L7
-            case VIRTUAL_KEY_PRESS.THREE.value:
-                # warm light
-                self.write_out_keypress(VIRTUAL_KEY_PRESS.THREE)
-                if self.lumen_level == 0 or self.last_light_mode is not LAST_LIGHT_MODE.WARM:
-                        print("\tturning on main warm light only")
-                        await self.light_operation(self.all_lights, [11, None, None, None])
-                else: 
-                        print("\tturning all warm lights")
-                        await self.light_operation(self.all_lights, [11,11,11,11])
-                self.lumen_level = (self.lumen_level + 1) % 2
-                self.last_light_mode = LAST_LIGHT_MODE.WARM
+            # case VIRTUAL_KEY_PRESS.THREE.value:
+            #     # warm light
+            #     self.write_out_keypress(VIRTUAL_KEY_PRESS.THREE)
+            #     if self.lumen_level == 0 or self.last_light_mode is not LAST_LIGHT_MODE.WARM:
+            #             print("\tturning on main warm light only")
+            #             await self.light_operation(self.all_lights, [11, None, None, None])
+            #     else: 
+            #             print("\tturning all warm lights")
+            #             await self.light_operation(self.all_lights, [11,11,11,11])
+            #     self.lumen_level = (self.lumen_level + 1) % 2
+            #     self.last_light_mode = LAST_LIGHT_MODE.WARM
                 
             case VIRTUAL_KEY_PRESS.ENTER.value:
                 # daylight
@@ -261,7 +261,7 @@ class DeviceSwitcher:
             case VIRTUAL_KEY_PRESS.ZERO.value:
                 # off
                 self.write_out_keypress(VIRTUAL_KEY_PRESS.ZERO)
-                print("\tturning off al lights.")
+                print("\tturning off all lights.")
                 await self.light_operation(self.all_lights, [None, None, None, None])
                 self.lumen_level = 0
                 self.last_light_mode = None
