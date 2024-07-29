@@ -48,7 +48,7 @@ class DeviceSwitcher:
 
     def __init__(self, light_timeout=3):
             # light level 0 = just main light to be turned on. level 1 means also turn on candle lights
-            self.light_level = 1
+            self.lumen_level = 1
             self.main_wiz_light = self.get_main_light()
             self.candle_lights = self.get_candle_lights()
             self.all_lights = self.main_wiz_light + self.candle_lights
@@ -95,22 +95,16 @@ class DeviceSwitcher:
     def write_out_keypress(virtual_key):
         DeviceSwitcher.write_out('{real} or virtual {virtual} pressed'.format(real=virtual_key, virtual=virtual_key.value))
         
+        
+    async def light_operation(self, lights, scene_numbers):
+            light_scene_number_pairs = [i for i in zip(lights, scene_numbers)]
+            light_scene_number_pairs = [i for i in light_scene_number_pairs if i[0] is not None]
 
-    async def lights_off(self, lights):
             try:
                 # gather tasks with a timeout
                 async with asyncio.timeout(self.light_timeout):
                     # run the tasks
-                    await asyncio.gather(*[light.turn_off() for light in lights if light is not None])
-            except asyncio.TimeoutError:
-                 print("timeout during lights off operations. Aborting...")
-
-    async def lights_on(self, lights, scene_number):
-            try:
-                # gather tasks with a timeout
-                async with asyncio.timeout(self.light_timeout):
-                    # run the tasks
-                    await asyncio.gather(*[light.turn_on(PilotBuilder(scene = scene_number)) for light in lights if light is not None])
+                    await asyncio.gather(*[light_scene_pair[0].turn_on(PilotBuilder(scene = light_scene_pair[1])) if light_scene_pair[1] is not None else light_scene_pair[0].turn_off() for light_scene_pair in light_scene_number_pairs])
             except asyncio.TimeoutError:
                  print("timeout during lights on operations. Aborting...")
             
@@ -221,10 +215,11 @@ class DeviceSwitcher:
                 # display 2 - mac
                 self.write_out_keypress(VIRTUAL_KEY_PRESS.TWO)
                 subprocess.run("irsend SEND_ONCE 8K_4X1_HDMI_SWITCH KEY_MACRO4", shell=True)
-            case VIRTUAL_KEY_PRESS.THREE.value:
-                # display 3 - raspberry pi
-                self.write_out_keypress(VIRTUAL_KEY_PRESS.THREE)
-                subprocess.run("irsend SEND_ONCE 8K_4X1_HDMI_SWITCH KEY_MACRO5", shell=True)
+            # case VIRTUAL_KEY_PRESS.THREE.value:
+            #     # display 3 - raspberry pi
+            #     self.write_out_keypress(VIRTUAL_KEY_PRESS.THREE)
+            #     subprocess.run("irsend SEND_ONCE 8K_4X1_HDMI_SWITCH KEY_MACRO5", shell=True)
+
             # main monitor volume
             case VIRTUAL_KEY_PRESS.MINUS.value:
                 # volume up
@@ -239,42 +234,39 @@ class DeviceSwitcher:
                 
             # wiz light
             # scenes are from: https://github.com/sbidy/pywizlight/blob/6c6e4a2c5c7c2b46e5f3159e6d290d9099f6b923/pywizlight/scenes.py#L7
-            # case VIRTUAL_KEY_PRESS.THREE.value:
-            #     # warm light
-            #     self.write_out_keypress(VIRTUAL_KEY_PRESS.THREE)
-            #     if self.light_level == 0 or self.last_light_mode is not LAST_LIGHT_MODE.WARM:
-            #             await self.lights_on(self.main_wiz_light, 11)
-            #             await self.lights_off(self.candle_lights)
-            #     else: 
-            #             await self.lights_on(self.all_lights, 11)
-            #     self.light_level = (self.light_level + 1) % 2
-            #     self.last_light_mode = LAST_LIGHT_MODE.WARM
+            case VIRTUAL_KEY_PRESS.THREE.value:
+                # warm light
+                self.write_out_keypress(VIRTUAL_KEY_PRESS.THREE)
+                if self.lumen_level == 0 or self.last_light_mode is not LAST_LIGHT_MODE.WARM:
+                        await self.light_operation(self.all_lights, [11, None, None, None])
+                else: 
+                        await self.light_operation(self.all_lights, [11,11,11,11])
+                self.lumen_level = (self.lumen_level + 1) % 2
+                self.last_light_mode = LAST_LIGHT_MODE.WARM
                 
             case VIRTUAL_KEY_PRESS.ENTER.value:
                 # daylight
                 self.write_out_keypress(VIRTUAL_KEY_PRESS.ENTER)
-                if self.light_level == 0 or self.last_light_mode is not LAST_LIGHT_MODE.DAYLIGHT:
-                        await self.lights_on(self.main_wiz_light, 12)
-                        await self.lights_off(self.candle_lights)
+                if self.lumen_level == 0 or self.last_light_mode is not LAST_LIGHT_MODE.DAYLIGHT:
+                        await self.light_operation(self.all_lights, [12, None, None, None])
                 else: 
-                        await self.lights_on(self.all_lights, 12)
-                self.light_level = (self.light_level + 1) % 2
+                        await self.light_operation(self.all_lights, [12,12,12,12])
+                self.lumen_level = (self.lumen_level + 1) % 2
                 self.last_light_mode = LAST_LIGHT_MODE.DAYLIGHT
             case VIRTUAL_KEY_PRESS.ZERO.value:
                 # off
                 self.write_out_keypress(VIRTUAL_KEY_PRESS.ZERO)
-                await self.lights_off(self.all_lights)
-                self.light_level = 0
+                await self.light_operation(self.all_lights, [None, None, None, None])
+                self.lumen_level = 0
                 self.last_light_mode = None
             case VIRTUAL_KEY_PRESS.DOT.value:
                 # nightlight
                 self.write_out_keypress(VIRTUAL_KEY_PRESS.DOT)
-                if self.light_level == 0 or self.last_light_mode is not LAST_LIGHT_MODE.NIGHTLIGHT:
-                        await self.lights_on(self.main_wiz_light, 14)
-                        await self.lights_off(self.candle_lights)
+                if self.lumen_level == 0 or self.last_light_mode is not LAST_LIGHT_MODE.NIGHTLIGHT:
+                        await self.light_operation(self.all_lights, [14, None, None, None])
                 else: 
-                        await self.lights_on(self.all_lights, 14)
-                self.light_level = (self.light_level + 1) % 2
+                        await self.light_operation(self.all_lights, [14,14,14,14])
+                self.lumen_level = (self.lumen_level + 1) % 2
                 self.last_light_mode = LAST_LIGHT_MODE.NIGHTLIGHT 
             
 
@@ -298,5 +290,5 @@ class DeviceSwitcher:
 
 
 if __name__ == "__main__":
-    deviceSwitcher = DeviceSwitcher()
+    deviceSwitcher = DeviceSwitcher(light_timeout=5)
     asyncio.get_event_loop().run_until_complete(deviceSwitcher.main())
