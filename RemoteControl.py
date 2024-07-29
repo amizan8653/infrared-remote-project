@@ -46,7 +46,7 @@ class VIRTUAL_KEY_PRESS(Enum):
 
 class DeviceSwitcher:
 
-    def __init__(self):
+    def __init__(self, light_timeout=3):
             # light level 0 = just main light to be turned on. level 1 means also turn on candle lights
             self.light_level = 1
             self.main_wiz_light = self.get_main_light()
@@ -59,6 +59,8 @@ class DeviceSwitcher:
             
             self.current_volume = self.get_monitor_volume()
             self.last_light_mode = None
+
+            self.light_timeout = light_timeout
 
      
     @staticmethod
@@ -95,10 +97,23 @@ class DeviceSwitcher:
         
 
     async def lights_off(self, lights):
-            await asyncio.gather(*[light.turn_off() for light in lights if light is not None])
+            try:
+                # gather tasks with a timeout
+                async with asyncio.timeout(self.light_timeout):
+                    # run the tasks
+                    await asyncio.gather(*[light.turn_off() for light in lights if light is not None])
+            except asyncio.TimeoutError:
+                 print("timeout during lights off operations. Aborting...")
 
     async def lights_on(self, lights, scene_number):
-            await asyncio.gather(*[light.turn_on(PilotBuilder(scene = scene_number)) for light in lights if light is not None])
+            try:
+                # gather tasks with a timeout
+                async with asyncio.timeout(self.light_timeout):
+                    # run the tasks
+                    await asyncio.gather(*[light.turn_on(PilotBuilder(scene = scene_number)) for light in lights if light is not None])
+            except asyncio.TimeoutError:
+                 print("timeout during lights on operations. Aborting...")
+            
 
     def get_candle_lights(self): 
             # candle lightbulb initialization
