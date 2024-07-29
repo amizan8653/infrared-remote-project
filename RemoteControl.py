@@ -49,9 +49,7 @@ class DeviceSwitcher:
     def __init__(self, light_timeout=3):
             # light level 0 = just main light to be turned on. level 1 means also turn on candle lights
             self.lumen_level = 1
-            self.main_wiz_light = self.get_main_light()
-            self.candle_lights = self.get_candle_lights()
-            self.all_lights = self.main_wiz_light + self.candle_lights
+            self.all_lights = self.get_main_light() + self.get_candle_lights()
 
             pygame.init()
             self.window = pygame.display.set_mode((300, 300), pygame.HWSURFACE)
@@ -107,10 +105,10 @@ class DeviceSwitcher:
                               if scene is not None 
                               else light.turn_off() 
                               for light, scene in zip(lights, scene_numbers)])
-                    print("Lights operation completed successfully!")
+                    print("\tLights operation completed successfully!")
                     return True
             except asyncio.TimeoutError:
-                 print("timeout during lights on operations. Aborting...")
+                 print("\ttimeout during lights on operations. Aborting...")
                  return False
             
 
@@ -119,15 +117,13 @@ class DeviceSwitcher:
             candle_wiz_bulb_ip_1 = "192.168.4.78"
             candle_wiz_bulb_ip_2 = "192.168.4.79"
             candle_wiz_bulb_ip_3 = "192.168.4.80"
-            self.candle_lights = [wizlight(ip_address) for ip_address in [candle_wiz_bulb_ip_1, candle_wiz_bulb_ip_2, candle_wiz_bulb_ip_3]]
-            return self.candle_lights
+            return [wizlight(ip_address) for ip_address in [candle_wiz_bulb_ip_1, candle_wiz_bulb_ip_2, candle_wiz_bulb_ip_3]]
             
             
     def get_main_light(self):
             # main lightbulb initiailzation
             main_wiz_bulb_ip = "192.168.4.21"
-            self.main_wiz_light = [wizlight(main_wiz_bulb_ip)]
-            return self.main_wiz_light
+            return [wizlight(main_wiz_bulb_ip)]
 
     @staticmethod
     def monitor_hdmi_2():
@@ -243,8 +239,10 @@ class DeviceSwitcher:
                 # warm light
                 self.write_out_keypress(VIRTUAL_KEY_PRESS.THREE)
                 if self.lumen_level == 0 or self.last_light_mode is not LAST_LIGHT_MODE.WARM:
+                        print("\tturning on main warm light only")
                         await self.light_operation(self.all_lights, [11, None, None, None])
                 else: 
+                        print("\tturning all warm lights")
                         await self.light_operation(self.all_lights, [11,11,11,11])
                 self.lumen_level = (self.lumen_level + 1) % 2
                 self.last_light_mode = LAST_LIGHT_MODE.WARM
@@ -253,14 +251,17 @@ class DeviceSwitcher:
                 # daylight
                 self.write_out_keypress(VIRTUAL_KEY_PRESS.ENTER)
                 if self.lumen_level == 0 or self.last_light_mode is not LAST_LIGHT_MODE.DAYLIGHT:
+                        print("\tturning on main day light only")
                         await self.light_operation(self.all_lights, [12, None, None, None])
                 else: 
+                        print("\tturning all day lights")
                         await self.light_operation(self.all_lights, [12,12,12,12])
                 self.lumen_level = (self.lumen_level + 1) % 2
                 self.last_light_mode = LAST_LIGHT_MODE.DAYLIGHT
             case VIRTUAL_KEY_PRESS.ZERO.value:
                 # off
                 self.write_out_keypress(VIRTUAL_KEY_PRESS.ZERO)
+                print("\tturning off al lights.")
                 await self.light_operation(self.all_lights, [None, None, None, None])
                 self.lumen_level = 0
                 self.last_light_mode = None
@@ -268,8 +269,10 @@ class DeviceSwitcher:
                 # nightlight
                 self.write_out_keypress(VIRTUAL_KEY_PRESS.DOT)
                 if self.lumen_level == 0 or self.last_light_mode is not LAST_LIGHT_MODE.NIGHTLIGHT:
+                        print("\tturning on main night light only")
                         await self.light_operation(self.all_lights, [14, None, None, None])
                 else: 
+                        print("\tturning all night lights")
                         await self.light_operation(self.all_lights, [14,14,14,14])
                 self.lumen_level = (self.lumen_level + 1) % 2
                 self.last_light_mode = LAST_LIGHT_MODE.NIGHTLIGHT 
