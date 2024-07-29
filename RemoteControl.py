@@ -52,6 +52,12 @@ class DeviceSwitcher:
             self.all_lights = self.get_main_light() + self.get_candle_lights()
 
             pygame.init()
+            
+            # for some reason when running this as a service, leaving the mixer on breaks main monitor audio
+            # disabling... we don't output sound anyways in this script.
+            pygame.mixer.stop()
+            pygame.mixer.quit()
+
             self.window = pygame.display.set_mode((300, 300), pygame.HWSURFACE)
             pygame.display.set_caption("Pygame Demonstration")
             
