@@ -1,0 +1,12 @@
+wget -qO- https://raw.githubusercontent.com/Botspot/pi-apps/master/install | bash
+
+run that command above to go and have an installer that makes it really easy
+to install a whole bunch of raspberry pi apps. 
+ 
+
+Like kolourpaint, an ms paint equivalent with some extended features
+
+Or obsidian note taking app.
+
+Or steam.
+
