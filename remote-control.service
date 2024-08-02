@@ -22,6 +22,7 @@ Description=remote control software
 Type=simple
 ExecStart=/usr/bin/python3.11 /home/amizan8653/Desktop/git_repos/infrared-remote-project/RemoteControl.py
 Restart=always
+RestartSec=5
 WorkingDirectory=/home/amizan8653/Desktop/git_repos/infrared-remote-project
 
 [Install]
