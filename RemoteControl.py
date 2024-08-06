@@ -41,7 +41,14 @@ class VIRTUAL_KEY_PRESS(Enum):
     TWO = "audiostop"
     ENTER = "eject"
     ZERO = "help"    
-    DOT = "audionext"
+    DOT = "acbookmarks"
+    A = "displayswitch"
+    B = "mediaselect"
+    C = "calculator"
+    D = "acsearch"
+    E = "audionext"
+    F = "audiofastforward"
+    G = "achome"
     
 
 class DeviceSwitcher:
