@@ -1,0 +1,9 @@
+note: I did some code changes that ended up causing my screen to be blank when the pi booted up.
+
+If you want to "recover" from this, you need to get terminal access
+
+To get into terminal, you can just do ctrl + alt + f1
+
+From there navigate to your git repo and  do a `git stash` followed by a `reboot`
+
+Should be able to fix you gui by doing that. 
