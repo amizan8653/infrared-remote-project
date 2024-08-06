@@ -73,6 +73,8 @@ class DeviceSwitcher:
 
             self.light_timeout = light_timeout
 
+            self.enum_value_to_key = {x.value: x for x in VIRTUAL_KEY_PRESS}
+
      
     @staticmethod
     def get_monitor_volume():
@@ -104,7 +106,7 @@ class DeviceSwitcher:
         
     @staticmethod
     def write_out_keypress(virtual_key):
-        DeviceSwitcher.write_out('{real} or virtual {virtual} pressed'.format(real=virtual_key, virtual=virtual_key.value))
+        DeviceSwitcher.write_out('\t{real} or virtual {virtual} pressed'.format(real=virtual_key, virtual=virtual_key.value))
         
         
     async def light_operation(self, lights, scene_numbers):
@@ -171,77 +173,62 @@ class DeviceSwitcher:
         match key_press:
             # USB hub
             case VIRTUAL_KEY_PRESS.BACKSPACE.value:
-                self.write_out_keypress(VIRTUAL_KEY_PRESS.BACKSPACE)
                 self.usb_1()
             case VIRTUAL_KEY_PRESS.EQUAL.value:
-                self.write_out_keypress(VIRTUAL_KEY_PRESS.EQUAL)
                 self.usb_2()
             case VIRTUAL_KEY_PRESS.FORWARD_SLASH.value:
-                self.write_out_keypress(VIRTUAL_KEY_PRESS.FORWARD_SLASH)
                 self.usb_3()
             case VIRTUAL_KEY_PRESS.ASTERISK.value:
-                self.write_out_keypress(VIRTUAL_KEY_PRESS.ASTERISK)
                 self.usb_4()
                    
             # Main Monitor input and 4x2 HDMI Matrix
             case VIRTUAL_KEY_PRESS.SEVEN.value:
                 # display 1 - gaming pc
                 # switch to display port on MSI monitor. HDMI matrix - don't care.
-                self.write_out_keypress(VIRTUAL_KEY_PRESS.SEVEN)
                 self.monitor_dp()
                 
             case VIRTUAL_KEY_PRESS.EIGHT.value:
                 # display 1 - mac
                 # switch to hdmi 1 on MSI monitor. Then set HDMI matrix in 4 out 1 with IR remote.
-                self.write_out_keypress(VIRTUAL_KEY_PRESS.EIGHT)
                 self.monitor_hdmi_1()
                 subprocess.run("irsend SEND_ONCE matrix KEY_MACRO5", shell=True)
             case VIRTUAL_KEY_PRESS.NINE.value:
                 # display 1 - gfe
                 # switch to hdmi 1 on MSI monitor. Then set HDMI matrix in 2 out 2 with IR remote.
-                self.write_out_keypress(VIRTUAL_KEY_PRESS.NINE)
                 self.monitor_hdmi_1()
                 subprocess.run("irsend SEND_ONCE matrix KEY_MACRO6", shell=True)
             case VIRTUAL_KEY_PRESS.FOUR.value:
                 # display 1 - ps5
                 # switch to hdmi 1 on MSI monitor. Then set HDMI matrix in 4 out 2 with IR remote.
-                self.write_out_keypress(VIRTUAL_KEY_PRESS.FOUR)
                 self.monitor_hdmi_1()
                 subprocess.run("irsend SEND_ONCE matrix KEY_MACRO8", shell=True)
             case VIRTUAL_KEY_PRESS.FIVE.value:
                 # display 1 - switch
                 # switch to hdmi 1 on MSI monitor. Then set HDMI matrix in 3 out 2 with IR remote.
-                self.write_out_keypress(VIRTUAL_KEY_PRESS.FIVE)
                 self.monitor_hdmi_1()
                 subprocess.run("irsend SEND_ONCE matrix KEY_MACRO7", shell=True)
             case VIRTUAL_KEY_PRESS.SIX.value:
                 # display 1 - raspberry pi
                 # switch to hdmi 2 on MSI monitor. HDMI matrix - don't care.
-                self.write_out_keypress(VIRTUAL_KEY_PRESS.SIX)
                 self.monitor_hdmi_2()
             
             # 8k_4x1_HDMI_SWITCH 
             case VIRTUAL_KEY_PRESS.ONE.value:
                 # display 2 - gaming pc
-                self.write_out_keypress(VIRTUAL_KEY_PRESS.ONE)
                 subprocess.run("irsend SEND_ONCE 8K_4X1_HDMI_SWITCH KEY_MACRO3", shell=True)
             case VIRTUAL_KEY_PRESS.TWO.value:
                 # display 2 - mac
-                self.write_out_keypress(VIRTUAL_KEY_PRESS.TWO)
                 subprocess.run("irsend SEND_ONCE 8K_4X1_HDMI_SWITCH KEY_MACRO4", shell=True)
             case VIRTUAL_KEY_PRESS.THREE.value:
                 # display 3 - raspberry pi
-                self.write_out_keypress(VIRTUAL_KEY_PRESS.THREE)
                 subprocess.run("irsend SEND_ONCE 8K_4X1_HDMI_SWITCH KEY_MACRO5", shell=True)
 
             # main monitor volume
             case VIRTUAL_KEY_PRESS.MINUS.value:
                 # volume up
-                self.write_out_keypress(VIRTUAL_KEY_PRESS.MINUS)
                 self.current_volume = self.get_next_volume(self.current_volume, 10)
                 self.set_monitor_volume(self.current_volume)
             case VIRTUAL_KEY_PRESS.PLUS.value:
-                self.write_out_keypress(VIRTUAL_KEY_PRESS.PLUS)
                 # volume down
                 self.current_volume = self.get_next_volume(self.current_volume, -10)
                 self.set_monitor_volume(self.current_volume)
@@ -250,7 +237,6 @@ class DeviceSwitcher:
             # scenes are from: https://github.com/sbidy/pywizlight/blob/6c6e4a2c5c7c2b46e5f3159e6d290d9099f6b923/pywizlight/scenes.py#L7
             # case VIRTUAL_KEY_PRESS.THREE.value:
             #     # warm light
-            #     self.write_out_keypress(VIRTUAL_KEY_PRESS.THREE)
             #     if self.lumen_level == 0 or self.last_light_mode is not LAST_LIGHT_MODE.WARM:
             #             print("\tturning on main warm light only")
             #             await self.light_operation(self.all_lights, [11, None, None, None])
@@ -262,7 +248,6 @@ class DeviceSwitcher:
                 
             case VIRTUAL_KEY_PRESS.ENTER.value:
                 # daylight
-                self.write_out_keypress(VIRTUAL_KEY_PRESS.ENTER)
                 if self.lumen_level == 0 or self.last_light_mode is not LAST_LIGHT_MODE.DAYLIGHT:
                         print("\tturning on main day light only")
                         await self.light_operation(self.all_lights, [12, None, None, None])
@@ -273,14 +258,12 @@ class DeviceSwitcher:
                 self.last_light_mode = LAST_LIGHT_MODE.DAYLIGHT
             case VIRTUAL_KEY_PRESS.ZERO.value:
                 # off
-                self.write_out_keypress(VIRTUAL_KEY_PRESS.ZERO)
                 print("\tturning off all lights.")
                 await self.light_operation(self.all_lights, [None, None, None, None])
                 self.lumen_level = 0
                 self.last_light_mode = None
             case VIRTUAL_KEY_PRESS.DOT.value:
                 # nightlight
-                self.write_out_keypress(VIRTUAL_KEY_PRESS.DOT)
                 if self.lumen_level == 0 or self.last_light_mode is not LAST_LIGHT_MODE.NIGHTLIGHT:
                         print("\tturning on main night light only")
                         await self.light_operation(self.all_lights, [14, None, None, None])
@@ -306,7 +289,10 @@ class DeviceSwitcher:
 
                         self.write_out(pygame.key.name(event.key))
                         key_press = pygame.key.name(event.key).lower()
-                        await self.execute_keypress(key_press) 
+
+                        if key_press in self.enum_value_to_key.keys():
+                             self.write_out_keypress(self.enum_value_to_key[key_press])
+                             await self.execute_keypress(key_press) 
             pygame.quit()
 
 
