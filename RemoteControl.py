@@ -29,10 +29,10 @@ class VIRTUAL_KEY_PRESS(Enum):
     FORWARD_SLASH = "f15"
     ASTERISK = "f16"
     MINUS = "brightnessdown"
-    PLUS = "printscreen"
+    PLUS = "print screen"
     SEVEN = "f17"
     EIGHT = "f18"
-    NINE = "scrolllock"
+    NINE = "scroll lock"
     FOUR = "cancel"
     FIVE = "menu"
     SIX = "brightnessup"
@@ -41,14 +41,14 @@ class VIRTUAL_KEY_PRESS(Enum):
     TWO = "audiostop"
     ENTER = "eject"
     ZERO = "help"    
-    DOT = "acbookmarks"
+    DOT = "ac bookmarks"
     A = "displayswitch"
     B = "mediaselect"
     C = "calculator"
-    D = "acsearch"
+    D = "ac search"
     E = "audionext"
     F = "audiofastforward"
-    G = "achome"
+    G = "ac home"
     
 
 class DeviceSwitcher:
@@ -305,7 +305,7 @@ class DeviceSwitcher:
                     if event.type == pygame.KEYDOWN:
 
                         self.write_out(pygame.key.name(event.key))
-                        key_press = pygame.key.name(event.key).lower().replace(" ", "")
+                        key_press = pygame.key.name(event.key).lower()
                         await self.execute_keypress(key_press) 
             pygame.quit()
 
