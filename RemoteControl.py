@@ -55,7 +55,7 @@ class DeviceSwitcher:
 
     def __init__(self, light_timeout=3):
             # light level 0 = just main light to be turned on. level 1 means also turn on candle lights
-            self.lumen_level = 1
+            self.next_light_level = 1
             self.all_lights = self.get_main_light() + self.get_candle_lights()
 
             pygame.init()
@@ -88,12 +88,6 @@ class DeviceSwitcher:
         return 70
         
 
-    @staticmethod
-    def get_next_volume(current, step):
-        new_value = current + step
-        new_value = min(100, new_value)
-        new_value = max(0, new_value)
-        return new_value
 
     @staticmethod
     def set_monitor_volume(volume):
@@ -235,40 +229,43 @@ class DeviceSwitcher:
             # scenes are from: https://github.com/sbidy/pywizlight/blob/6c6e4a2c5c7c2b46e5f3159e6d290d9099f6b923/pywizlight/scenes.py#L7
             case VIRTUAL_KEY_PRESS.WARMLIGHT.value:
                 # warm light
-                if self.lumen_level == 0 or self.last_light_mode is not LAST_LIGHT_MODE.WARM:
+                if self.next_light_level == 0 or self.last_light_mode is not LAST_LIGHT_MODE.WARM:
                         print("\tturning on main warm light only")
                         await self.light_operation(self.all_lights, [11, None, None, None])
+                        self.next_light_level = 1
                 else: 
                         print("\tturning all warm lights")
                         await self.light_operation(self.all_lights, [11,11,11,11])
-                self.lumen_level = (self.lumen_level + 1) % 2
+                        self.next_light_level = 0
                 self.last_light_mode = LAST_LIGHT_MODE.WARM
                 
             case VIRTUAL_KEY_PRESS.DAYLIGHT.value:
                 # daylight
-                if self.lumen_level == 0 or self.last_light_mode is not LAST_LIGHT_MODE.DAYLIGHT:
+                if self.next_light_level == 0 or self.last_light_mode is not LAST_LIGHT_MODE.DAYLIGHT:
                         print("\tturning on main day light only")
                         await self.light_operation(self.all_lights, [12, None, None, None])
+                        self.next_light_level = 1
                 else: 
                         print("\tturning all day lights")
                         await self.light_operation(self.all_lights, [12,12,12,12])
-                self.lumen_level = (self.lumen_level + 1) % 2
+                        self.next_light_level = 0
                 self.last_light_mode = LAST_LIGHT_MODE.DAYLIGHT
             case VIRTUAL_KEY_PRESS.LIGHT_OFF.value:
                 # off
                 print("\tturning off all lights.")
                 await self.light_operation(self.all_lights, [None, None, None, None])
-                self.lumen_level = 0
+                self.next_light_level = 0
                 self.last_light_mode = None
             case VIRTUAL_KEY_PRESS.NIGHT_LIGHT.value:
                 # nightlight
-                if self.lumen_level == 0 or self.last_light_mode is not LAST_LIGHT_MODE.NIGHTLIGHT:
+                if self.next_light_level == 0 or self.last_light_mode is not LAST_LIGHT_MODE.NIGHTLIGHT:
                         print("\tturning on main night light only")
                         await self.light_operation(self.all_lights, [14, None, None, None])
+                        self.next_light_level = 1
                 else: 
                         print("\tturning all night lights")
                         await self.light_operation(self.all_lights, [14,14,14,14])
-                self.lumen_level = (self.lumen_level + 1) % 2
+                        self.next_light_level = 0
                 self.last_light_mode = LAST_LIGHT_MODE.NIGHTLIGHT 
             
 
