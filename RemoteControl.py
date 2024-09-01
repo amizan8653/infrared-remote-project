@@ -53,7 +53,7 @@ class VIRTUAL_KEY_PRESS(Enum):
 
 class DeviceSwitcher:
 
-    def __init__(self, light_timeout=4, monitor_timeout=4):
+    def __init__(self, light_timeout=4):
             # light level 0 = just main light to be turned on. level 1 means also turn on candle lights
             self.next_light_level = 1
             self.all_lights = self.get_main_light() + self.get_candle_lights()
@@ -72,7 +72,6 @@ class DeviceSwitcher:
             self.last_light_mode = None
 
             self.light_timeout = light_timeout
-            self.monitor_timeout = monitor_timeout
 
             self.enum_value_to_key = {x.value: x for x in VIRTUAL_KEY_PRESS}
 
@@ -311,5 +310,5 @@ class DeviceSwitcher:
 
 
 if __name__ == "__main__":
-    deviceSwitcher = DeviceSwitcher(light_timeout=5)
+    deviceSwitcher = DeviceSwitcher(light_timeout=10)
     asyncio.get_event_loop().run_until_complete(deviceSwitcher.main())
