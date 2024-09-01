@@ -53,7 +53,7 @@ class VIRTUAL_KEY_PRESS(Enum):
 
 class DeviceSwitcher:
 
-    def __init__(self, light_timeout=3):
+    def __init__(self, light_timeout=4, monitor_timeout=4):
             # light level 0 = just main light to be turned on. level 1 means also turn on candle lights
             self.next_light_level = 1
             self.all_lights = self.get_main_light() + self.get_candle_lights()
@@ -72,6 +72,7 @@ class DeviceSwitcher:
             self.last_light_mode = None
 
             self.light_timeout = light_timeout
+            self.monitor_timeout = monitor_timeout
 
             self.enum_value_to_key = {x.value: x for x in VIRTUAL_KEY_PRESS}
 
@@ -104,21 +105,21 @@ class DeviceSwitcher:
         
         
     async def light_operation(self, lights, scene_numbers):
-            try:
-                # gather tasks with a timeout
-                async with asyncio.timeout(self.light_timeout):
-                    # run the tasks
-                    await asyncio.gather(
-                         *[
-                              light.turn_on(PilotBuilder(scene = scene)) 
-                              if scene is not None 
-                              else light.turn_off() 
-                              for light, scene in zip(lights, scene_numbers)])
-                    print("\tLights operation completed successfully!")
-                    return True
-            except asyncio.TimeoutError:
-                 print("\ttimeout during lights on operations. Aborting...")
-                 return False
+        try:
+            # gather tasks with a timeout
+            async with asyncio.timeout(self.light_timeout):
+                # run the tasks
+                await asyncio.gather(
+                        *[
+                            light.turn_on(PilotBuilder(scene = scene)) 
+                            if scene is not None 
+                            else light.turn_off() 
+                            for light, scene in zip(lights, scene_numbers)])
+                print("\tLights operation completed successfully!")
+                return True
+        except asyncio.TimeoutError:
+                print("\ttimeout during lights on operations. Aborting...")
+                return False
             
 
     def get_candle_lights(self): 
@@ -135,15 +136,15 @@ class DeviceSwitcher:
             return [wizlight(main_wiz_bulb_ip)]
 
     @staticmethod
-    def monitor_hdmi_2():
+    async def monitor_hdmi_2():
             subprocess.run("ddcutil setvcp 60 18", shell=True)
 
     @staticmethod
-    def monitor_hdmi_1():
+    async def monitor_hdmi_1():
             subprocess.run("ddcutil setvcp 60 17", shell=True)
 
     @staticmethod
-    def monitor_dp():
+    async def monitor_dp():
             subprocess.run("ddcutil setvcp 60 15", shell=True)
 
     @staticmethod
@@ -161,7 +162,24 @@ class DeviceSwitcher:
     @staticmethod
     def usb_4():
         subprocess.run("irsend SEND_ONCE rybozen KEY_MACRO4", shell=True)
+
+    @staticmethod
+    async def display_1_hdmi_switch_mac():
+        subprocess.run("irsend SEND_ONCE matrix KEY_MACRO5", shell=True)
+
+    @staticmethod
+    async def display_1_hdmi_switch_gfe():
+        subprocess.run("irsend SEND_ONCE matrix KEY_MACRO6", shell=True)
         
+    @staticmethod
+    async def display_1_hdmi_switch_ps5():
+        subprocess.run("irsend SEND_ONCE matrix KEY_MACRO8", shell=True)
+
+    @staticmethod
+    async def display_1_hdmi_switch_switch():
+        subprocess.run("irsend SEND_ONCE matrix KEY_MACRO7", shell=True)
+    
+    
 
     async def execute_keypress(self, key_press):
         match key_press:
@@ -179,32 +197,64 @@ class DeviceSwitcher:
             case VIRTUAL_KEY_PRESS.MAIN_MONITOR_ONE.value:
                 # display 1 - gaming pc
                 # switch to display port on MSI monitor. HDMI matrix - don't care.
-                self.monitor_dp()
+                await self.monitor_dp()
                 
             case VIRTUAL_KEY_PRESS.MAIN_MONITOR_TWO.value:
                 # display 1 - mac
                 # switch to hdmi 1 on MSI monitor. Then set HDMI matrix in 4 out 1 with IR remote.
-                self.monitor_hdmi_1()
-                subprocess.run("irsend SEND_ONCE matrix KEY_MACRO5", shell=True)
+                try:
+                    # gather tasks with a timeout
+                    async with asyncio.timeout(self.monitor_timeout):
+                        # run the tasks
+                        await asyncio.gather(
+                                *[self.monitor_hdmi_1(),
+                                  DeviceSwitcher.display_1_hdmi_switch_mac()])
+                        print("\tMain monitor switch operation completed successfully!")
+                except asyncio.TimeoutError:
+                        print("\tMain monitor switch operation failed. Aborting...")
             case VIRTUAL_KEY_PRESS.MAIN_MONITOR_THREE.value:
                 # display 1 - gfe
                 # switch to hdmi 1 on MSI monitor. Then set HDMI matrix in 2 out 2 with IR remote.
-                self.monitor_hdmi_1()
-                subprocess.run("irsend SEND_ONCE matrix KEY_MACRO6", shell=True)
+                try:
+                    # gather tasks with a timeout
+                    async with asyncio.timeout(self.monitor_timeout):
+                        # run the tasks
+                        await asyncio.gather(
+                                *[self.monitor_hdmi_1(),
+                                  DeviceSwitcher.display_1_hdmi_switch_gfe()])
+                        print("\tMain monitor switch operation completed successfully!")
+                except asyncio.TimeoutError:
+                        print("\tMain monitor switch operation failed. Aborting...")
             case VIRTUAL_KEY_PRESS.MAIN_MONITOR_FOUR.value:
                 # display 1 - ps5
                 # switch to hdmi 1 on MSI monitor. Then set HDMI matrix in 4 out 2 with IR remote.
-                self.monitor_hdmi_1()
-                subprocess.run("irsend SEND_ONCE matrix KEY_MACRO8", shell=True)
+                try:
+                    # gather tasks with a timeout
+                    async with asyncio.timeout(self.monitor_timeout):
+                        # run the tasks
+                        await asyncio.gather(
+                                *[self.monitor_hdmi_1(),
+                                  DeviceSwitcher.display_1_hdmi_switch_ps5()])
+                        print("\tMain monitor switch operation completed successfully!")
+                except asyncio.TimeoutError:
+                        print("\tMain monitor switch operation failed. Aborting...")                
             case VIRTUAL_KEY_PRESS.MAIN_MONITOR_FIVE.value:
                 # display 1 - switch
                 # switch to hdmi 1 on MSI monitor. Then set HDMI matrix in 3 out 2 with IR remote.
-                self.monitor_hdmi_1()
-                subprocess.run("irsend SEND_ONCE matrix KEY_MACRO7", shell=True)
+                try:
+                    # gather tasks with a timeout
+                    async with asyncio.timeout(self.monitor_timeout):
+                        # run the tasks
+                        await asyncio.gather(
+                                *[self.monitor_hdmi_1(),
+                                  DeviceSwitcher.display_1_hdmi_switch_switch()])
+                        print("\tMain monitor switch operation completed successfully!")
+                except asyncio.TimeoutError:
+                        print("\tMain monitor switch operation failed. Aborting...")
             case VIRTUAL_KEY_PRESS.MAIN_MONITOR_SIX.value:
                 # display 1 - raspberry pi
                 # switch to hdmi 2 on MSI monitor. HDMI matrix - don't care.
-                self.monitor_hdmi_2()
+                await self.monitor_hdmi_2()
             
             # 8k_4x1_HDMI_SWITCH 
             case VIRTUAL_KEY_PRESS.SIDE_MONITOR_ONE.value:
