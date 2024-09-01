@@ -179,7 +179,12 @@ class DeviceSwitcher:
     async def display_1_hdmi_switch_switch():
         subprocess.run("irsend SEND_ONCE matrix KEY_MACRO7", shell=True)
     
-    
+    @staticmethod
+    async def run_two_async_functions(function_one, function_two):
+        first_task = asyncio.create_task(function_one())
+        second_task = asyncio.create_task(function_two())
+        await first_task
+        await second_task     
 
     async def execute_keypress(self, key_press):
         match key_press:
@@ -202,55 +207,19 @@ class DeviceSwitcher:
             case VIRTUAL_KEY_PRESS.MAIN_MONITOR_TWO.value:
                 # display 1 - mac
                 # switch to hdmi 1 on MSI monitor. Then set HDMI matrix in 4 out 1 with IR remote.
-                try:
-                    # gather tasks with a timeout
-                    async with asyncio.timeout(self.monitor_timeout):
-                        # run the tasks
-                        await asyncio.gather(
-                                *[self.monitor_hdmi_1(),
-                                  DeviceSwitcher.display_1_hdmi_switch_mac()])
-                        print("\tMain monitor switch operation completed successfully!")
-                except asyncio.TimeoutError:
-                        print("\tMain monitor switch operation failed. Aborting...")
+                await DeviceSwitcher.run_two_async_functions(DeviceSwitcher.display_1_hdmi_switch_mac, self.monitor_hdmi_1)
             case VIRTUAL_KEY_PRESS.MAIN_MONITOR_THREE.value:
                 # display 1 - gfe
                 # switch to hdmi 1 on MSI monitor. Then set HDMI matrix in 2 out 2 with IR remote.
-                try:
-                    # gather tasks with a timeout
-                    async with asyncio.timeout(self.monitor_timeout):
-                        # run the tasks
-                        await asyncio.gather(
-                                *[self.monitor_hdmi_1(),
-                                  DeviceSwitcher.display_1_hdmi_switch_gfe()])
-                        print("\tMain monitor switch operation completed successfully!")
-                except asyncio.TimeoutError:
-                        print("\tMain monitor switch operation failed. Aborting...")
+                await DeviceSwitcher.run_two_async_functions(DeviceSwitcher.display_1_hdmi_switch_gfe, self.monitor_hdmi_1)
             case VIRTUAL_KEY_PRESS.MAIN_MONITOR_FOUR.value:
                 # display 1 - ps5
                 # switch to hdmi 1 on MSI monitor. Then set HDMI matrix in 4 out 2 with IR remote.
-                try:
-                    # gather tasks with a timeout
-                    async with asyncio.timeout(self.monitor_timeout):
-                        # run the tasks
-                        await asyncio.gather(
-                                *[self.monitor_hdmi_1(),
-                                  DeviceSwitcher.display_1_hdmi_switch_ps5()])
-                        print("\tMain monitor switch operation completed successfully!")
-                except asyncio.TimeoutError:
-                        print("\tMain monitor switch operation failed. Aborting...")                
+                await DeviceSwitcher.run_two_async_functions(DeviceSwitcher.display_1_hdmi_switch_ps5, self.monitor_hdmi_1)
             case VIRTUAL_KEY_PRESS.MAIN_MONITOR_FIVE.value:
                 # display 1 - switch
                 # switch to hdmi 1 on MSI monitor. Then set HDMI matrix in 3 out 2 with IR remote.
-                try:
-                    # gather tasks with a timeout
-                    async with asyncio.timeout(self.monitor_timeout):
-                        # run the tasks
-                        await asyncio.gather(
-                                *[self.monitor_hdmi_1(),
-                                  DeviceSwitcher.display_1_hdmi_switch_switch()])
-                        print("\tMain monitor switch operation completed successfully!")
-                except asyncio.TimeoutError:
-                        print("\tMain monitor switch operation failed. Aborting...")
+                await DeviceSwitcher.run_two_async_functions(DeviceSwitcher.display_1_hdmi_switch_switch, self.monitor_hdmi_1)
             case VIRTUAL_KEY_PRESS.MAIN_MONITOR_SIX.value:
                 # display 1 - raspberry pi
                 # switch to hdmi 2 on MSI monitor. HDMI matrix - don't care.
