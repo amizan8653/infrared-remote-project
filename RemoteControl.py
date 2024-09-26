@@ -13,7 +13,7 @@ from enum import Enum
 sys.path.append('/home/amizan8653/.venv/lib/python3.11/site-packages')
 
 # wiz lights library from virtual environment
-from pywizlight import wizlight, PilotBuilder, discovery
+from pywizlight import wizlight, PilotBuilder, discovery, rgbcw
 
 
 
@@ -68,7 +68,7 @@ class DeviceSwitcher:
             self.window = pygame.display.set_mode((300, 300), pygame.HWSURFACE)
             pygame.display.set_caption("Pygame Demonstration")
             
-            self.current_volume = self.get_monitor_volume()
+            # self.current_volume = self.get_monitor_volume()
             self.last_light_mode = None
 
             self.light_timeout = light_timeout
@@ -76,22 +76,22 @@ class DeviceSwitcher:
             self.enum_value_to_key = {x.value: x for x in VIRTUAL_KEY_PRESS}
 
      
-    @staticmethod
-    def get_monitor_volume():
-        shell_output = subprocess.run("ddcutil getvcp 62", shell=True, capture_output=True, text=True)
-        if shell_output is not None and shell_output.stdout is not None:
-            exp = re.compile(r"(current value =\s*)(\d+)")
-            result = exp.search(shell_output.stdout)
-            if result is not None and len(result.groups()) == 2:
-                return int(result.group(2).strip())
-        print("error in getting volume... returning a default to not crash rest of app")
-        return 70
+    # @staticmethod
+    # def get_monitor_volume():
+    #     shell_output = subprocess.run("ddcutil getvcp 62", shell=True, capture_output=True, text=True)
+    #     if shell_output is not None and shell_output.stdout is not None:
+    #         exp = re.compile(r"(current value =\s*)(\d+)")
+    #         result = exp.search(shell_output.stdout)
+    #         if result is not None and len(result.groups()) == 2:
+    #             return int(result.group(2).strip())
+    #     print("error in getting volume... returning a default to not crash rest of app")
+    #     return 70
         
 
 
-    @staticmethod
-    def set_monitor_volume(volume):
-        subprocess.run("ddcutil setvcp 62 " + str(volume), shell=True)
+    # @staticmethod
+    # def set_monitor_volume(volume):
+    #     subprocess.run("ddcutil setvcp 62 " + str(volume), shell=True)
 
 
     @staticmethod
@@ -122,29 +122,35 @@ class DeviceSwitcher:
             
 
     def get_candle_lights(self): 
-            # candle lightbulb initialization
-            candle_wiz_bulb_ip_1 = "192.168.4.78"
-            candle_wiz_bulb_ip_2 = "192.168.4.79"
-            candle_wiz_bulb_ip_3 = "192.168.4.80"
-            return [wizlight(ip_address) for ip_address in [candle_wiz_bulb_ip_1, candle_wiz_bulb_ip_2, candle_wiz_bulb_ip_3]]
+        # candle lightbulb initialization
+        candle_wiz_bulb_ip_1 = "192.168.4.78"
+        candle_wiz_bulb_ip_2 = "192.168.4.79"
+        candle_wiz_bulb_ip_3 = "192.168.4.80"
+        return [wizlight(ip_address) for ip_address in [candle_wiz_bulb_ip_1, candle_wiz_bulb_ip_2, candle_wiz_bulb_ip_3]]
             
             
     def get_main_light(self):
-            # main lightbulb initiailzation
-            main_wiz_bulb_ip = "192.168.4.21"
-            return [wizlight(main_wiz_bulb_ip)]
+        # main lightbulb initiailzation
+        main_wiz_bulb_ip = "192.168.4.21"
+        return [wizlight(main_wiz_bulb_ip)]
 
     @staticmethod
     async def monitor_hdmi_2():
-            subprocess.run("ddcutil setvcp 60 18", shell=True)
+        subprocess.run("ddcutil setvcp 60 18", shell=True)
 
     @staticmethod
     async def monitor_hdmi_1():
-            subprocess.run("ddcutil setvcp 60 17", shell=True)
+        subprocess.run("ddcutil setvcp 60 17", shell=True)
 
     @staticmethod
     async def monitor_dp():
-            subprocess.run("ddcutil setvcp 60 15", shell=True)
+        subprocess.run("ddcutil setvcp 60 15", shell=True)
+
+    @staticmethod
+    async def monitor_saturation(r,g,b):
+        subprocess.run("ddcutil setvcp 16 " + str(r), shell=True)
+        subprocess.run("ddcutil setvcp 18 " + str(g), shell=True)
+        subprocess.run("ddcutil setvcp 1A " + str(b), shell=True)
 
     @staticmethod
     def usb_1():
@@ -234,14 +240,14 @@ class DeviceSwitcher:
             case VIRTUAL_KEY_PRESS.SIDE_MONITOR_THREE.value:
                 # display 3 - raspberry pi
                 subprocess.run("irsend SEND_ONCE 8K_4X1_HDMI_SWITCH KEY_MACRO5", shell=True)
-
-            # main monitor volume
+             
+            # main monitor 1 saturation
             case VIRTUAL_KEY_PRESS.VOLUME_MAX.value:
-                # volume MAX
-                self.set_monitor_volume(100)
+                # set color gain to 100% for all 3 primary colors
+                await self.monitor_saturation(100, 100, 100)
             case VIRTUAL_KEY_PRESS.VOLUME_MUTE.value:
-                # volume MUTE
-                self.set_monitor_volume(0)
+                # set color gain to 0, 0, 100% for R,G,B
+                await self.monitor_saturation(100, 0, 0)
                 
             # wiz light
             # scenes are from: https://github.com/sbidy/pywizlight/blob/6c6e4a2c5c7c2b46e5f3159e6d290d9099f6b923/pywizlight/scenes.py#L7
@@ -276,14 +282,11 @@ class DeviceSwitcher:
                 self.last_light_mode = None
             case VIRTUAL_KEY_PRESS.NIGHT_LIGHT.value:
                 # nightlight
-                if self.next_light_level == 0 or self.last_light_mode is not LAST_LIGHT_MODE.NIGHTLIGHT:
-                        print("\tturning on main night light only")
-                        await self.light_operation(self.all_lights, [14, None, None, None])
-                        self.next_light_level = 1
-                else: 
-                        print("\tturning all night lights")
-                        await self.light_operation(self.all_lights, [14,14,14,14])
-                        self.next_light_level = 0
+                print("\tTurning off main light and making 3 candle lights red")
+                trapezoid = rgbcw.rgb2rgbcw([255,0,0])
+                print(trapezoid)
+                # await self.light_operation(self.all_lights, [None, 1, 1, 1])
+                self.next_light_level = 0
                 self.last_light_mode = LAST_LIGHT_MODE.NIGHTLIGHT 
             
 
