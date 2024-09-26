@@ -158,10 +158,24 @@ class DeviceSwitcher:
         subprocess.run("ddcutil setvcp 60 15", shell=True)
 
     @staticmethod
-    async def monitor_saturation(r,g,b):
+    async def red_saturation(r):
         subprocess.run("ddcutil setvcp 16 " + str(r), shell=True)
+
+    @staticmethod
+    async def green_saturation(g):
         subprocess.run("ddcutil setvcp 18 " + str(g), shell=True)
+
+    @staticmethod
+    async def blue_saturation(b):
         subprocess.run("ddcutil setvcp 1A " + str(b), shell=True)
+
+    @staticmethod
+    async def monitor_saturation(r,g,b):
+        await asyncio.gather(
+            DeviceSwitcher.red_saturation(r),
+            DeviceSwitcher.green_saturation(g),
+            DeviceSwitcher.blue_saturation(b))
+        
 
     @staticmethod
     def usb_1():
