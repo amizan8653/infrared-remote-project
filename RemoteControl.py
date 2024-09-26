@@ -104,6 +104,9 @@ class DeviceSwitcher:
         
         
     async def light_operation(self, lights, scene_numbers=None, rgb_values=None):
+        if scene_numbers is None and rgb_values is None:
+            print("nothing to update")
+            return False
         try:
             # gather tasks with a timeout
             async with asyncio.timeout(self.light_timeout):
@@ -262,25 +265,25 @@ class DeviceSwitcher:
             case VIRTUAL_KEY_PRESS.WARMLIGHT.value:
                 # warm light
                 if self.next_light_level == 0 or self.last_light_mode is not LAST_LIGHT_MODE.WARM:
-                        print("\tturning on main warm light only")
-                        await self.light_operation(self.all_lights, scene_numbers=[11, None, None, None])
-                        self.next_light_level = 1
+                    print("\tturning on main warm light only")
+                    await self.light_operation(self.all_lights, scene_numbers=[11, None, None, None])
+                    self.next_light_level = 1
                 else: 
-                        print("\tturning all warm lights")
-                        await self.light_operation(self.all_lights, scene_numbers=[11,11,11,11])
-                        self.next_light_level = 0
+                    print("\tturning all warm lights")
+                    await self.light_operation(self.all_lights, scene_numbers=[11,11,11,11])
+                    self.next_light_level = 0
                 self.last_light_mode = LAST_LIGHT_MODE.WARM
                 
             case VIRTUAL_KEY_PRESS.DAYLIGHT.value:
                 # daylight
                 if self.next_light_level == 0 or self.last_light_mode is not LAST_LIGHT_MODE.DAYLIGHT:
-                        print("\tturning on main day light only")
-                        await self.light_operation(self.all_lights, scene_numbers=[12, None, None, None])
-                        self.next_light_level = 1
+                    print("\tturning on main day light only")
+                    await self.light_operation(self.all_lights, scene_numbers=[12, None, None, None])
+                    self.next_light_level = 1
                 else: 
-                        print("\tturning all day lights")
-                        await self.light_operation(self.all_lights, scene_numbers=[12,12,12,12])
-                        self.next_light_level = 0
+                    print("\tturning all day lights")
+                    await self.light_operation(self.all_lights, scene_numbers=[12,12,12,12])
+                    self.next_light_level = 0
                 self.last_light_mode = LAST_LIGHT_MODE.DAYLIGHT
             case VIRTUAL_KEY_PRESS.LIGHT_OFF.value:
                 # off
@@ -298,12 +301,10 @@ class DeviceSwitcher:
 
     async def main(self): 
             self.write_out("entering main loop")
-
             mainloop=True
             while mainloop:
                 time.sleep(0.05)
                 for event in pygame.event.get():
-
                     if event.type == pygame.QUIT:
                         mainloop = False
 
@@ -313,8 +314,8 @@ class DeviceSwitcher:
                         key_press = pygame.key.name(event.key).lower()
 
                         if key_press in self.enum_value_to_key.keys():
-                             self.write_out_keypress(self.enum_value_to_key[key_press])
-                             await self.execute_keypress(key_press) 
+                            self.write_out_keypress(self.enum_value_to_key[key_press])
+                            await self.execute_keypress(key_press) 
             pygame.quit()
 
 
