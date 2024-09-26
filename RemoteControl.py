@@ -103,17 +103,25 @@ class DeviceSwitcher:
         DeviceSwitcher.write_out('\t{real} or virtual {virtual} pressed'.format(real=virtual_key, virtual=virtual_key.value))
         
         
-    async def light_operation(self, lights, scene_numbers):
+    async def light_operation(self, lights, scene_numbers=None, rgb_values=None):
         try:
             # gather tasks with a timeout
             async with asyncio.timeout(self.light_timeout):
                 # run the tasks
-                await asyncio.gather(
-                        *[
-                            light.turn_on(PilotBuilder(scene = scene)) 
-                            if scene is not None 
-                            else light.turn_off() 
-                            for light, scene in zip(lights, scene_numbers)])
+                if scene_numbers is not None: 
+                    await asyncio.gather(
+                            *[
+                                light.turn_on(PilotBuilder(scene = scene)) 
+                                if scene is not None 
+                                else light.turn_off() 
+                                for light, scene in zip(lights, scene_numbers)])
+                else:
+                    await asyncio.gather(
+                            *[
+                                light.turn_on(PilotBuilder(rgb = rgb)) 
+                                if rgb is not None 
+                                else light.turn_off() 
+                                for light, rgb in zip(lights, rgb_values)])
                 print("\tLights operation completed successfully!")
                 return True
         except asyncio.TimeoutError:
@@ -255,11 +263,11 @@ class DeviceSwitcher:
                 # warm light
                 if self.next_light_level == 0 or self.last_light_mode is not LAST_LIGHT_MODE.WARM:
                         print("\tturning on main warm light only")
-                        await self.light_operation(self.all_lights, [11, None, None, None])
+                        await self.light_operation(self.all_lights, scene_numbers=[11, None, None, None])
                         self.next_light_level = 1
                 else: 
                         print("\tturning all warm lights")
-                        await self.light_operation(self.all_lights, [11,11,11,11])
+                        await self.light_operation(self.all_lights, scene_numbers=[11,11,11,11])
                         self.next_light_level = 0
                 self.last_light_mode = LAST_LIGHT_MODE.WARM
                 
@@ -267,25 +275,23 @@ class DeviceSwitcher:
                 # daylight
                 if self.next_light_level == 0 or self.last_light_mode is not LAST_LIGHT_MODE.DAYLIGHT:
                         print("\tturning on main day light only")
-                        await self.light_operation(self.all_lights, [12, None, None, None])
+                        await self.light_operation(self.all_lights, scene_numbers=[12, None, None, None])
                         self.next_light_level = 1
                 else: 
                         print("\tturning all day lights")
-                        await self.light_operation(self.all_lights, [12,12,12,12])
+                        await self.light_operation(self.all_lights, scene_numbers=[12,12,12,12])
                         self.next_light_level = 0
                 self.last_light_mode = LAST_LIGHT_MODE.DAYLIGHT
             case VIRTUAL_KEY_PRESS.LIGHT_OFF.value:
                 # off
                 print("\tturning off all lights.")
-                await self.light_operation(self.all_lights, [None, None, None, None])
+                await self.light_operation(self.all_lights, scene_numbers=[None, None, None, None])
                 self.next_light_level = 0
                 self.last_light_mode = None
             case VIRTUAL_KEY_PRESS.NIGHT_LIGHT.value:
                 # nightlight
                 print("\tTurning off main light and making 3 candle lights red")
-                trapezoid = rgbcw.rgb2rgbcw([255,0,0])
-                print(trapezoid)
-                # await self.light_operation(self.all_lights, [None, 1, 1, 1])
+                await self.light_operation(self.all_lights, rgb_values=[None, (255,0,0), (255,0,0), (255,0,0)])
                 self.next_light_level = 0
                 self.last_light_mode = LAST_LIGHT_MODE.NIGHTLIGHT 
             
