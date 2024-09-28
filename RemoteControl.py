@@ -8,6 +8,7 @@ import asyncio
 import sys
 import re
 from enum import Enum
+from concurrent.futures import ProcessPoolExecutor
 
 # load virutal python environment libraries
 sys.path.append('/home/amizan8653/.venv/lib/python3.11/site-packages')
@@ -307,10 +308,15 @@ class DeviceSwitcher:
                 self.last_light_mode = None
             case VIRTUAL_KEY_PRESS.NIGHT_LIGHT.value:
                 # nightlight
-                print("\tTurning off main light and making 3 candle lights red")
-                await self.light_operation(self.all_lights, rgb_values=[None, (255,0,0), (255,0,0), (255,0,0)])
-                self.next_light_level = 0
-                self.last_light_mode = LAST_LIGHT_MODE.NIGHTLIGHT 
+                if self.next_light_level == 0 or self.last_light_mode is not LAST_LIGHT_MODE.NIGHTLIGHT:
+                    print("\tturning on main night light only")
+                    await self.light_operation(self.all_lights, rgb_values=[(255,0,0), None, None, None])
+                    self.next_light_level = 1
+                else: 
+                    print("\tturning candella lights only lights")
+                    await self.light_operation(self.all_lights, rgb_values=[None, (255,0,0), (255,0,0), (255,0,0)])
+                    self.next_light_level = 0
+                self.last_light_mode = LAST_LIGHT_MODE.NIGHTLIGHT
             
 
     async def main(self): 
@@ -335,4 +341,6 @@ class DeviceSwitcher:
 
 if __name__ == "__main__":
     deviceSwitcher = DeviceSwitcher(light_timeout=10)
-    asyncio.get_event_loop().run_until_complete(deviceSwitcher.main())
+    threadPool = ProcessPoolExecutor(4)
+    loop = asyncio.get_event_loop()
+    loop.run_until_complete(deviceSwitcher.main())
