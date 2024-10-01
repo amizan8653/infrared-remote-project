@@ -212,10 +212,12 @@ class DeviceSwitcher:
     
     @staticmethod
     async def run_two_async_functions(function_one, function_two):
-        first_task = asyncio.create_task(function_one())
-        second_task = asyncio.create_task(function_two())
-        await first_task
-        await second_task     
+        # first_task = asyncio.create_task(function_one())
+        # second_task = asyncio.create_task(function_two())
+        # await first_task
+        # await second_tas
+        await function_one()
+        await function_two()
 
     async def execute_keypress(self, key_press):
         match key_press:
