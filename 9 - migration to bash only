@@ -1,0 +1,22 @@
+there's been jank with the pyhthon version - sometimes buttons don't respond to me and also if the program crashes, it won't auto restart as a service
+so far all the remote IR commands are done via terminal, and so are the DDCUTIL commands. pywiz was the only python library.
+
+we can replace it now:
+
+this reddit post explains it:
+https://www.reddit.com/r/wiz/comments/1582jfx/guide_to_controlling_a_wiz_lightplug_via_windows/?rdt=58964
+
+and that links to this website: 
+https://seanmcnally.net/wiz-config.html
+
+which generates some example commands 
+
+On raspberry pi you can install netcat to go and run the commands. Install with
+`sudo apt install netcat-openbsd`
+
+After that, if the IP address of a bulb is for example `192.168.4.21`, then you can turn it on with 
+echo -n "{\"id\":1,\"method\":\"setState\",\"params\":{\"state\":true}}" | nc -u -w 1 192.168.4.21 38899
+and off with 
+echo -n "{\"id\":1,\"method\":\"setState\",\"params\":{\"state\":false}}" | nc -u -w 1 192.168.4.21 38899
+
+still need to go and figure out how to set RGB but that shouldn't be too bad. 
