@@ -17,19 +17,25 @@ On raspberry pi you can install netcat to go and run the commands. Install with
 After that, if the IP address of a bulb is for example `192.168.4.21`, then you can 
 
 turn it on with 
-    `echo -n "{\"id\":1,\"method\":\"setState\",\"params\":{\"state\":true}}" | nc -u -w 1 192.168.4.21 38899`
+    `echo -n "{\"id\":1,\"method\":\"setState\",\"params\":{\"state\":true}}" | nc -u -w 2 192.168.4.21 38899`
 off with 
-    `echo -n "{\"id\":1,\"method\":\"setState\",\"params\":{\"state\":false}}" | nc -u -w 1 192.168.4.21 38899`
+    `echo -n "{\"id\":1,\"method\":\"setState\",\"params\":{\"state\":false}}" | nc -u -w 2 192.168.4.21 38899`
     // returned `{"method":"setState","id":1,"env":"pro","result":{"success":true}}`
 daylight with
-    `echo -n "{\"id\":1,\"method\":\"setPilot\",\"params\":{\"sceneId\":12,\"dimming\":100}}" | nc -u -w 1 192.168.4.21 38899`
+    `echo -n "{\"id\":1,\"method\":\"setPilot\",\"params\":{\"sceneId\":12,\"dimming\":100}}" | nc -u -w 2 192.168.4.21 38899`
     // should return with `{"method":"setPilot","id":1,"env":"pro","result":{"success":true}}`
 warmlight with 
-    `echo -n "{\"id\":1,\"method\":\"setPilot\",\"params\":{\"sceneId\":11,\"dimming\":100}}" | nc -u -w 1 192.168.4.21 38899`
+    `echo -n "{\"id\":1,\"method\":\"setPilot\",\"params\":{\"sceneId\":11,\"dimming\":100}}" | nc -u -w 2 192.168.4.21 38899`
 nightlight with 
-    `echo -n "{\"id\":1,\"method\":\"setPilot\",\"params\":{\"sceneId\":14,\"dimming\":100}}" | nc -u -w 1 192.168.4.21 38899`
+    `echo -n "{\"id\":1,\"method\":\"setPilot\",\"params\":{\"sceneId\":14,\"dimming\":100}}" | nc -u -w 2 192.168.4.21 38899`
 RGB red with 
-    `echo -n "{\"id\":1,\"method\":\"setPilot\",\"params\":{\"r\":255,\"g\":0,\"b\":0,\"dimming\": 100}}" | nc -u -w 1 192.168.4.21 38899`
+    `echo -n "{\"id\":1,\"method\":\"setPilot\",\"params\":{\"r\":255,\"g\":0,\"b\":0,\"dimming\": 100}}" | nc -u -w 2 192.168.4.21 38899`
     // should return with `{"method":"setPilot","id":1,"env":"pro","result":{"success":true}}`
 
 For some reason I'm getting some jank behavior when trying to go and get this shit running.
+note: -u means UDP instead of the default TCP. 
+      seems like wiz lights aren't setup for TCP
+note: -w 2 means with timeout of 2 seconds
+      seems like even with successful immediate execution, the thing still hangs until timeout is over.
+      and not including it at all makes it hang forever.
+      I guess there's supposed to be EOF or something sent by wiz to terminate but it doesn't.
