@@ -290,4 +290,15 @@ ddcutil --display 2 setvcp 16 100
 ddcutil --display 2 setvcp 18 0
 ddcutil --display 2 setvcp 1A 0
 
+# allow me to change the color gain of the side monitor: 
+ddcutil --display 2 setvcp CA 1
+// originally the value above was 2. Strangely, even though I set it to 2 again, I can still go and change the color gain. will leave it at 1.
+
+# disallow me from changing the color gain of the side monitor and revert back to original value
+ddcutil --display 2 setvcp CA 2
+
+# change side monitor to red in 1 line
 ddcutil --display 2 setvcp 16 100 && ddcutil --display 2 setvcp 18 0 && ddcutil --display 2 setvcp 1A 0
+
+# change side monitor to regular in 1 line
+ddcutil --display 2 setvcp 16 100 && ddcutil --display 2 setvcp 18 100 && ddcutil --display 2 setvcp 1A 100

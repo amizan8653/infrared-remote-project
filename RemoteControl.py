@@ -79,7 +79,7 @@ class DeviceSwitcher:
      
     # @staticmethod
     # def get_monitor_volume():
-    #     shell_output = subprocess.run("ddcutil getvcp 62", shell=True, capture_output=True, text=True)
+    #     shell_output = subprocess.run("ddcutil --display 1 getvcp 62", shell=True, capture_output=True, text=True)
     #     if shell_output is not None and shell_output.stdout is not None:
     #         exp = re.compile(r"(current value =\s*)(\d+)")
     #         result = exp.search(shell_output.stdout)
@@ -92,7 +92,7 @@ class DeviceSwitcher:
 
     # @staticmethod
     # def set_monitor_volume(volume):
-    #     subprocess.run("ddcutil setvcp 62 " + str(volume), shell=True)
+    #     subprocess.run("ddcutil --display 1 setvcp 62 " + str(volume), shell=True)
 
 
     @staticmethod
@@ -158,24 +158,17 @@ class DeviceSwitcher:
     async def monitor_dp():
         subprocess.run("ddcutil setvcp 60 15", shell=True)
 
-    @staticmethod
-    async def red_saturation(r):
-        subprocess.run("ddcutil setvcp 16 " + str(r), shell=True)
 
     @staticmethod
-    async def green_saturation(g):
+    def monitor_saturation(r,g,b):
+        # red will always be set to  100 anyways. 
+        # subprocess.run("ddcutil setvcp 16 " + str(r), shell=True)
         subprocess.run("ddcutil setvcp 18 " + str(g), shell=True)
-
-    @staticmethod
-    async def blue_saturation(b):
         subprocess.run("ddcutil setvcp 1A " + str(b), shell=True)
-
-    @staticmethod
-    async def monitor_saturation(r,g,b):
-        await asyncio.gather(
-            DeviceSwitcher.red_saturation(r),
-            DeviceSwitcher.green_saturation(g),
-            DeviceSwitcher.blue_saturation(b))
+        # subprocess.run("ddcutil --display 2 setvcp 16 " + str(r), shell=True)
+        subprocess.run("ddcutil --display 2 setvcp 18 " + str(g), shell=True)
+        subprocess.run("ddcutil --display 2 setvcp 1A " + str(b), shell=True)
+    
         
 
     @staticmethod
@@ -272,10 +265,10 @@ class DeviceSwitcher:
             # main monitor 1 saturation
             case VIRTUAL_KEY_PRESS.VOLUME_MAX.value:
                 # set color gain to 100% for all 3 primary colors
-                await self.monitor_saturation(100, 100, 100)
+                self.monitor_saturation(100, 100, 100)
             case VIRTUAL_KEY_PRESS.VOLUME_MUTE.value:
                 # set color gain to 0, 0, 100% for R,G,B
-                await self.monitor_saturation(100, 0, 0)
+                self.monitor_saturation(100, 0, 0)
                 
             # wiz light
             # scenes are from: https://github.com/sbidy/pywizlight/blob/6c6e4a2c5c7c2b46e5f3159e6d290d9099f6b923/pywizlight/scenes.py#L7
