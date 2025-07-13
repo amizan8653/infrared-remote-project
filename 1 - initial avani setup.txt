@@ -37,3 +37,32 @@ copy over the one you configured:
 
 kick off the service.
 `sudo systemctl restart lircd`
+
+note: adding a new remote: 
+basically follow this guide to make sure you have the lirc library setup: 
+https://github.com/AnaviTechnology/anavi-docs/blob/main/anavi-infrared-phat/anavi-infrared-phat.md#setting-up-lirc
+
+the go ahead and setup the new remote with: 
+https://github.com/AnaviTechnology/anavi-docs/blob/main/anavi-infrared-phat/anavi-infrared-phat.md#using-ir-receiver
+```
+# Stop LIRC systemd service
+sudo systemctl stop lircd
+
+# List all available names for buttons supported by LIRC:
+irrecord --list-namespace
+
+# Type in the following command to create new LIRC control configuration file and follow the on screen instructions to scan a remote control:
+irrecord -d /dev/lirc1 ~./temp-lircd.conf
+
+Let's say during the instructions, when it asks me for device name, I picked: `usb_switcher_3.2`
+
+then at the end of all of this, a new file will be created called: `usb_switcher_3.2.lircd.conf`
+
+Since in the instructions I ended up creating a device called `usb_switcher_3.2.lircd.conf`, I manaully copy the contents of `usb_switcher_3.2.lircd.conf`
+and paste it at the end of `combined.lircd.conf.txt` which is a list of all the remotes I configured.
+
+Afterwards, you can copy and paste and override the remote defined for the controller:  
+`sudo cp ./combined.lircd.conf.txt /etc/lirc/lircd.conf`
+and then confirm with 
+`cat /etc/lirc/lircd.conf`
+

@@ -182,3 +182,39 @@ begin remote
 
 end remote
 
+# --------------------------------------------------------------------------
+# new all metal enclouse USB switcher that hopefully won't have issue with windows 
+# KEY_MACRO1=ON
+# KEY_MACRO2=OFF
+# KEY_MACRO3=1 (Deskotp)
+# KEY_MACRO4=2 (mac)
+# KEY_MACRO5=3 (gfe)
+# KEY_MACRO6=4 (raspberry pi)
+begin remote
+
+  name  usb_switcher_3.2
+  bits           32
+  flags SPACE_ENC|CONST_LENGTH
+  eps            30
+  aeps          100
+
+  header       9032  4466
+  one           601  1658
+  zero          601   526
+  ptrail        600
+  repeat       9033  2234
+  gap          107868
+  toggle_bit_mask 0x0
+  frequency    38000
+
+      begin codes
+          KEY_MACRO1               0x01FE48B7 0x00000000
+          KEY_MACRO2               0x01FE7887 0x00000000
+          KEY_MACRO3               0x01FE20DF 0x00000000
+          KEY_MACRO4               0x01FE609F 0x00000000
+          KEY_MACRO5               0x01FE50AF 0x00000000
+          KEY_MACRO6               0x01FEF807 0x00000000
+      end codes
+
+end remote
+
